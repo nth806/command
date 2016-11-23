@@ -1,0 +1,33 @@
+# Windows
+Thumbs.db
+
+# Linux
+*.swp
+
+# MAC
+.DS_Store
+
+# Common
+.Trashes
+.idea
+*.lock
+
+# GIT
+.git*
+
+# SVN
+.svn
+
+# Eclipse
+.buildpath
+.project
+.settings
+
+# Netbean
+.nb-gradle
+
+# Sublime
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-project

@@ -1,0 +1,9 @@
+OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
+INPUT_TMP=../${OUTPUT_DIR}/input.txt
+IGNORE_FILE=config/sync_ignore
+
+push2client_sync
+
+push2client_check
+
+push2client_exec

@@ -1,0 +1,8 @@
+FILELIST_PATH=${OUTPUT_DIR}/cplist_tmp.txt
+DES_DIR="${1}"
+
+cplist_check
+
+cplist_input
+
+cplist_run
