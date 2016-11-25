@@ -1,3 +1,4 @@
+EMAIL_FILE=../config/email_list
 OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
 INPUT_TMP=../${OUTPUT_DIR}/input.txt
 IGNORE_FILE=config/sync_ignore
