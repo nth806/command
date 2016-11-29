@@ -166,7 +166,7 @@ function __process_line_ci () {
       git add $path
       ;;
     3)
-      mkdir $BASE_DIR/$CLIENT_DIR/$path
+      mkdir -p $BASE_DIR/$CLIENT_DIR/$path
       cp -rf "$BASE_DIR/$TTV_SRC/$path/*" "$BASE_DIR/$CLIENT_DIR/$path/"
       cd $path
       git add *
