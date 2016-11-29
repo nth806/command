@@ -19,15 +19,15 @@ function __cpPath () {
     return
   fi
 
-  if [ -f ${CLIENT_DIR}/${line} ]; then
+  if [ -f ${SRC_DIR}/${line} ]; then
     echo "Copy file ${line}"
     mkdir -p `dirname "${DES_DIR}/${line}"`
-    cp -f ${CLIENT_DIR}/${line} ${DES_DIR}/${line}
+    cp -f ${SRC_DIR}/${line} ${DES_DIR}/${line}
     return
-  elif [ -d ${CLIENT_DIR}/${line} ]; then
+  elif [ -d ${SRC_DIR}/${line} ]; then
     echo "Copy directory ${line}"
     mkdir -p "${DES_DIR}/${line}"
-    cp -rf ${CLIENT_DIR}/${line}/* ${DES_DIR}/${line}/
+    cp -rf ${SRC_DIR}/${line}/* ${DES_DIR}/${line}/
     return
   fi
 

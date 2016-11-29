@@ -1,5 +1,6 @@
 FILELIST_PATH=${OUTPUT_DIR}/cplist_tmp.txt
 DES_DIR="${1}"
+SRC_DIR=${2:-$CLIENT_DIR}
 
 cplist_check
 
