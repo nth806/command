@@ -23,7 +23,7 @@ function __is_in_ignore () {
   local ignore_path=
   for ignore_path in "${IGNORE_LIST[@]}"
   do
-    cmn_isStartWith "${ignore_path}" "${1}/"
+    cmn_isStartWith "$ignore_path" "$1/"
     if [ $? -eq 0 ] ; then
       return 0
     fi
@@ -206,10 +206,17 @@ function push2client_check () {
   export IFS=$'\n'
   echo -n 'START ----------------'
   echo -e '\033[1;35m'
-  for line in `diff -rq -X "${BIN_DIR}/cfg/sync_ignore" ${TTV_SRC} ${CLIENT_DIR}`
-  do
-    __process_line_diff "${line}"
-  done
+  if [ -f config/sync_ignore_diff ] ; then
+    for line in `diff -rq -X $BIN_FOLDER/cfg/sync_ignore -X config/sync_ignore_diff $TTV_SRC $CLIENT_DIR`
+    do
+      __process_line_diff "${line}"
+    done
+  else
+    for line in `diff -rq -X "$BIN_FOLDER/cfg/sync_ignore" $TTV_SRC $CLIENT_DIR`
+    do
+      __process_line_diff "${line}"
+    done
+  fi
   export IFS=$PRI_IFS
   echo -e -n '\033[0m'
   echo 'END ------------------'
