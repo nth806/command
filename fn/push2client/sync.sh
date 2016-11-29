@@ -95,6 +95,8 @@ function push2client_sync () {
     cmn_exitAbnormal 'Pulling master source was failed, please check again'
   fi
 
+  local lc_msg=`git stash`
+
   cd ${CLIENT_DIR}
   __verify_client_repo
   cd ${BASE_DIR}
