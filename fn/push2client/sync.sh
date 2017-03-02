@@ -18,17 +18,17 @@ function __add_email_list () {
 function __verify_client_repo () {
   if [ 'x'`git_currentBranch` != 'x'"${GIT_DEFAULT_BRANCH}" ]
   then
-    git checkout master
+    git checkout "${GIT_DEFAULT_BRANCH}"
     if [ $? -ne 0 ]
     then
-      cmn_exitAbnormal 'Checking out branch <${GIT_DEFAULT_BRANCH}> (client repository) was failed, please check again'
+      cmn_exitAbnormal 'Checking out branch <'${GIT_DEFAULT_BRANCH}'> (client repository) was failed, please check again'
     fi
   fi
 
   git fetch origin "${GIT_DEFAULT_BRANCH}"
   if [ $? -ne 0 ]
   then
-    cmn_exitAbnormal 'Fetching <${GIT_DEFAULT_BRANCH}> (client repository) was failed, please check again'
+    cmn_exitAbnormal 'Fetching <'${GIT_DEFAULT_BRANCH}'> (client repository) was failed, please check again'
   fi
 
   git_statusBranch
@@ -80,19 +80,19 @@ function __verify_client_repo () {
 function push2client_sync () {
   cmn_showTitleStep "Synchronize source"
 
-  if [ 'x'`git_currentBranch` != 'xmaster' ]
+  if [ 'x'`git_currentBranch` != 'x'"${GIT_TTV_DEFAULT_BRANCH}" ]
   then
-    git checkout master
+    git checkout "${GIT_TTV_DEFAULT_BRANCH}"
     if [ $? -ne 0 ]
     then
-      cmn_exitAbnormal 'Checking out branch <master> was failed, please check again'
+      cmn_exitAbnormal 'Checking out branch <'"${GIT_TTV_DEFAULT_BRANCH}"'> was failed, please check again'
     fi
   fi
 
-  git pull origin master
+  git pull origin "${GIT_TTV_DEFAULT_BRANCH}"
   if [ $? -ne 0 ]
   then
-    cmn_exitAbnormal 'Pulling master source was failed, please check again'
+    cmn_exitAbnormal 'Pulling '"${GIT_TTV_DEFAULT_BRANCH}"' source was failed, please check again'
   fi
 
   local lc_msg=`git stash`

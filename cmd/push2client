@@ -3,6 +3,19 @@ OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
 INPUT_TMP=../${OUTPUT_DIR}/input.txt
 IGNORE_FILE=config/sync_ignore
 
+# There is one parameter is shifted
+if [ "x${1}" != "x" ]; then
+  GIT_TTV_DEFAULT_BRANCH=${1}
+
+  if [ "x${2}" = "x" ]; then
+    cmn_exitAbnormal 'Please add parameter of client repository branch'
+  fi
+
+  GIT_DEFAULT_BRANCH=${2}
+else
+  GIT_TTV_DEFAULT_BRANCH=master
+fi
+
 push2client_sync
 
 push2client_check
