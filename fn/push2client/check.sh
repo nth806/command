@@ -222,7 +222,7 @@ function push2client_check () {
   echo 'END ------------------'
 
   if [ ! -f ${OUTPUT_TMP} ] ; then
-    cmn_echoBrown "There is no updated file"
+    echo_Yellow "There is no updated file"
     cmn_exitNormal
   fi
 

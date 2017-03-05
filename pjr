@@ -3,6 +3,7 @@
 ##############################################################################
 
 ################ Init ################
+DESPATCH_SCRIPT=$0
 BIN_DIR=`cd $(dirname "$0"); pwd`
 cd ${BIN_DIR}
 if [ ! -f '../config/constant.sh' ] ; then
@@ -11,6 +12,14 @@ if [ ! -f '../config/constant.sh' ] ; then
 fi
 . ../config/constant.sh
 
+function __help_wrong_despatch () {
+  echo
+  echo 'For help command, please try:'
+  echo -en '  '
+  echo_Blue "${DESPATCH_SCRIPT} help"
+  echo
+  exit 1;
+}
 
 # Initializing function
 for lc_file in `find _inc/ -type f -name '*.sh'`
@@ -21,15 +30,16 @@ unset lc_file
 
 if [ "x" = "x${1}" ]
 then
-  cmn_echoRed "Please input your command"
-  exit 1;
+  echo_Red "Please use '${DESPATCH_SCRIPT} <command>'"
+  __help_wrong_despatch
 fi
 
 SCRIPTNAME=${1}
-if [ ! -f "${BIN_DIR}/cmd/${SCRIPTNAME}" ]
+CODE_SCRIPT=`find ${BIN_DIR}/cmd -type f -name [[:digit:]][[:digit:]][[:digit:]]_${SCRIPTNAME}`
+if [ "x" = "x${CODE_SCRIPT}" ]
 then
-  cmn_echoRed "Not support command '${SCRIPTNAME}'"
-  exit 1;
+  echo_Red "Not support command '${SCRIPTNAME}'"
+  __help_wrong_despatch
 fi
 
 if [ -d "${BIN_DIR}/fn/${SCRIPTNAME}" ]
@@ -50,5 +60,5 @@ BASE_DIR=`cd $(dirname "${BIN_DIR}"); pwd`
 cd "${BASE_DIR}"
 
 CMN_COUNT=0
-. ${BIN_FOLDER}/cmd/${SCRIPTNAME}
+. ${CODE_SCRIPT}
 cmn_exitNormal

@@ -1,4 +1,4 @@
-function init_buildvagrant () {
+function clone_buildvagrant () {
   cmn_showTitleStep 'Build README.md and VagrantFile'
 
   local path=README.md

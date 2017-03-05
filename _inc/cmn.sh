@@ -1,58 +1,28 @@
 ###########################################################
 # Common function
 ###########################################################
-function cmn_echoOK () {
-  echo "OK"
-}
-
-function cmn_echoNG () {
-  echo "NG"
-}
-
-function cmn_echoInfo () {
-  echo "  ${1}"
-}
-
-function cmn_echoRed () {
-  echo -e '\033[1;31m'
-  echo $2 $1
-  echo -e '\033[0m'
-}
-
-function cmn_echoBrown () {
-  echo -e '\033[1;33m'
-  echo $2 $1
-  echo -e '\033[0m'
-}
-
-function cmn_echoGreen () {
-  echo -e '\033[1;34m'
-  echo $2 $1
-  echo -e '\033[0m'
-}
-
 function cmn_exitNormal () {
-  echo -e '\033[1;32m'
+  echo -en '\033[1;32m'
   echo "Done"
-  echo -e '\033[0m'
+  echo -en '\033[0m'
   exit 0
 }
 
 function cmn_exitAbnormal () {
-  echo -e '\033[1;31m'
+  echo -en '\033[1;31m'
   echo "${1}"
   echo "Failed!"
-  echo -e '\033[0m'
+  echo -en '\033[0m'
   exit 255
 }
 
 function cmn_showTitleStep () {
   ((CMN_COUNT+=1))
-  cmn_echoGreen "["'****'" `cmn_padNumber ${CMN_COUNT} 2`. ${1} "'****'"]" -n
+  echo_Green "["'****'" `cmn_padNumber ${CMN_COUNT} 2`. ${1} "'****'"]" -n
 }
 
 function cmn_confirmProcess () {
-  cmn_echoBrown "${1}" -n
+  echo_Yellow "${1}" -n
   local l_input
   read -p "  ${2}" l_input
   l_input=`cmn_toLower ${l_input}`
@@ -167,9 +137,9 @@ function cmn_replaceVariableMultiLineInFile () {
 ###########################################################
 # Get base name of file without extension
 function cmn_mainBasename () {
-	local s=$1
-	s=${s##*/}
-	echo ${s%.*}
+  local s=$1
+  s=${s##*/}
+  echo ${s%.*}
 }
 
 function cmn_isEmptyFolder () {
@@ -189,4 +159,38 @@ function cmn_isEmptyFolder () {
   fi
 
   return 0
+}
+
+# Function functions
+###########################################################
+# Check whether or not function (internal functions only)
+function cmn_function_exists () {
+  if [ "x" = "x${1}" ]
+  then
+    return 1
+  fi
+
+  local fn_name=${1}
+  if [ -n "$(type -t ${fn_name})" ] && [ "$(type -t ${fn_name})" = function ]
+  then
+    return 0
+  fi
+
+  return 1
+}
+
+# Check whether or not function including external function
+function cmn_bash_exists () {
+  if [ "x" = "x${1}" ]
+  then
+    return 1
+  fi
+
+  local fn_name=${1}
+  if [ -n "$(type -t ${fn_name})" ]
+  then
+    return 0
+  fi
+
+  return 1
 }

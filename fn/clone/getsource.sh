@@ -1,10 +1,10 @@
-function init_getsource () {
+function clone_getsource () {
   cmn_showTitleStep 'Get source'
 
   cmn_isEmptyFolder ${CLIENT_DIR}
   if [ $? -eq 0 ]
   then
-    cmn_echoInfo 'Clone client repository'
+    echo_info 'Clone client repository'
     git clone ${CLIENT_REP_URL} ${CLIENT_DIR}
     if [ $? -ne 0 ]
     then
@@ -38,7 +38,7 @@ function init_getsource () {
 
   if [ $is_cp -eq 0 ]
   then
-    cmn_echoInfo 'Copy to ttv source'
+    echo_info 'Copy to ttv source'
     cp -rf ${CLIENT_DIR}/* ${TTV_SRC}/
   fi
 }
