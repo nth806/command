@@ -33,15 +33,19 @@ function __process_line () {
     exit
   fi
 
+  if [ "x${line:0:2}" = 'x#&' ]; then
+    line=${line:2}
+    line='echo "'"${line}"'"'
+    eval "${line}"
+    return 
+  fi
+
   line=${line:2}
   if [[ x${line} =~ x[[:space:]]*\@[[:alnum:]_]*\@ ]]; then
     __process_function "${line}";
     return
   fi
-  
-  # 
-  # TODO: reserve for replace variables
-  #
+
   echo "${line}"
 }
 

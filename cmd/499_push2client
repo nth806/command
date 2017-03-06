@@ -1,3 +1,17 @@
+##################################################################################
+# Push updated source from TTV source to client repository
+#
+# ** Description **
+#   Type 'y' for all questions if you want to push automatically
+#   If you need to check again, able to check and push manually
+#
+#&  If there is no parameter, this copies source from TTV `echo_Blue master -ne` branch and push to
+#&    <GIT_DEFAULT_BRANCH:`push2client_help_branch`> branch
+#
+#   If you specify TTV branch to client branch, must input more 2 parameters, you will get
+#   error if push 1 more parameter only
+#&    `echo $DESPATCH_SCRIPT` <ttv_branch> <client_branch>
+##################################################################################
 EMAIL_FILE=../config/email_list
 OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
 INPUT_TMP=../${OUTPUT_DIR}/input.txt
@@ -8,7 +22,7 @@ if [ "x${1}" != "x" ]; then
   GIT_TTV_DEFAULT_BRANCH=${1}
 
   if [ "x${2}" = "x" ]; then
-    cmn_exitAbnormal 'Please add parameter of client repository branch'
+    cmn_exitAbnormal 'Please add parameter of client branch'
   fi
 
   GIT_DEFAULT_BRANCH=${2}

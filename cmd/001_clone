@@ -2,7 +2,7 @@
 # Get remote repository of client-git then copy to ttv-source 
 #
 # ** Description **
-#   Run this after init command
+#   Run this after init command and only one time
 ##################################################################################
 clone_precheck
 

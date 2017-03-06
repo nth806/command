@@ -2,7 +2,7 @@
 # The first command to initialize project
 #
 # ** Description **
-#   Run firstly and once time only
+#   Run firstly and one and only one time
 #
 #   Parameters:
 #     [1] Git repository: command standard source

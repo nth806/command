@@ -206,17 +206,34 @@ function push2client_check () {
   export IFS=$'\n'
   echo -n 'START ----------------'
   echo -e '\033[1;35m'
-  if [ -f config/sync_ignore_diff ] ; then
-    for line in `diff -rq -X $BIN_FOLDER/cfg/sync_ignore -X config/sync_ignore_diff $TTV_SRC $CLIENT_DIR`
-    do
-      __process_line_diff "${line}"
-    done
+
+  local ARR_SYN_PATHS
+  local SYN_PATH
+
+  if [ "x${SYN_PATHS}" = "x" ]; then
+    ARR_SYN_PATHS=('')
   else
-    for line in `diff -rq -X "$BIN_FOLDER/cfg/sync_ignore" $TTV_SRC $CLIENT_DIR`
+    IFS=',;:' read -r -a ARR_SYN_PATHS <<< "${SYN_PATHS}"
+  fi
+
+  for SYN_PATH in "${ARR_SYN_PATHS[@]}"
+  do
+    SYN_PATH=`cmn_trimSpaces "${SYN_PATH}"`
+
+    if [ ! -d "${TTV_SRC}/${SYN_PATH}" ]; then
+      mkdir -p "${TTV_SRC}/${SYN_PATH}"
+    fi
+
+    if [ ! -d "${CLIENT_DIR}/${SYN_PATH}" ]; then
+      mkdir -p "${CLIENT_DIR}/${SYN_PATH}"
+    fi
+
+    for line in `diff -rq -X $BIN_FOLDER/cfg/sync_ignore -X config/sync_ignore_diff "${TTV_SRC}/${SYN_PATH}" "${CLIENT_DIR}/${SYN_PATH}"`
     do
       __process_line_diff "${line}"
     done
-  fi
+  done
+
   export IFS=$PRI_IFS
   echo -e -n '\033[0m'
   echo 'END ------------------'
