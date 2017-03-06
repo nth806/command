@@ -29,6 +29,13 @@ function clone_getsource () {
   IFS=',;:' read -r -a ARR_SYN_PATHS <<< "${SYN_PATHS}"
   for SYN_PATH in "${ARR_SYN_PATHS[@]}"
   do
+    SYN_PATH=`cmn_trimSpaces "${SYN_PATH}"`
+    # SYN_PATH=`echo ${SYN_PATH}`
+    if [ "x${SYN_PATH}" = "x" ]; then
+      echo_yellow "There is empty path on SYN_PATH"
+      continue
+    fi
+
     if [ ! -d "${CLIENT_DIR}/${SYN_PATH}" ]; then
       continue
     fi
