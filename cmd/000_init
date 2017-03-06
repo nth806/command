@@ -1,34 +1,13 @@
 ##################################################################################
-# The first command to initialze project
+# The first command to initialize project
 #
 # ** Description **
-#   Run firstly and once time only 
+#   Run firstly and once time only
+#
+#   Parameters:
+#     [1] Git repository: command standard source
+#         default: git@gitlab.com:nth806/std_command.git
 ##################################################################################
 init_prepocess
 
-if [ "x" = "x${TTV_REP_URL}" ]  
-then
-    cmn_exitAbnormal "Please configure your variable TTV_REP_URL in 'config/constant.sh'"
-fi
-
-cmn_confirm4Exit "We are preparing for migrating to [${TTV_REP_URL}]"
-
-rm -rf .git
-git init
-git remote add origin "${TTV_REP_URL}"
-
-git fetch origin
-if [ $? -ne 0 ] ; then
-  cmn_exitAbnormal "Can not fetch remote [${TTV_REP_URL}]"
-fi
-
-rm -rf bin
-stt=`git branch -r | grep 'origin/master'`
-if [ "x${stt}" != "x" ] ; then
-  cmn_exitAbnormal "Can not migrate because branch [master] has already existed on [${TTV_REP_URL}]"
-fi
-
-git add .
-git submodule add git@gitlab.com:nth806/std_command.git bin
-git commit -m "Add initializing project"
-git push -u origin master
+init_env "${1}"

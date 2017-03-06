@@ -1,4 +1,9 @@
-
+##################################################################################
+# Get remote repository of client-git then copy to ttv-source 
+#
+# ** Description **
+#   Run this after init command
+##################################################################################
 clone_precheck
 
 clone_buildvagrant
