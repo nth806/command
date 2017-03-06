@@ -18,6 +18,7 @@ function clone_getsource () {
     fi
   fi
 
+  cd ${BASE_DIR}
   echo_info 'Copy client-source to ttv-source'
   if [ "x${SYN_PATHS}" = "x" ]; then
     cp -rf ${CLIENT_DIR}/* ${TTV_SRC}/

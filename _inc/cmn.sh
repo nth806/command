@@ -121,7 +121,7 @@ function cmn_replaceVariableInFile () {
   local value=${!variable}
 
   value=`cmn_escape4Sed ${value}`
-  sed -i 's/{'${variable}'}/'"${value}"'/g' $2
+  sed -i -- 's/{'${variable}'}/'"${value}"'/g' $2
 }
 
 function cmn_replaceVariableMultiLineInFile () {
