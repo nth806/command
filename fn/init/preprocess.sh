@@ -39,6 +39,7 @@ function init_prepocess () {
 
   rm -rf "${SYNC_TRACKER}"
   mkdir -p "${SYNC_TRACKER}"
+  touch "${SYNC_TRACKER}/.gitignore"
 
   # Make output folder (a temporary folder)
   mkdir -p "${BASE_DIR}/${OUTPUT_DIR}"

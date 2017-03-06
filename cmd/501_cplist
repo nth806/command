@@ -1,3 +1,13 @@
+##################################################################################
+# Copy list files or folders which are asked for inputting
+#
+# ** Description **
+#   This function is intended for suming of and package released files
+#
+#   Parameters
+#&    [1]`help_cmn_required`: Path to an output folder which may has not been created
+#&    [2]   : base directory to copied files, default <`echo_Blue ${CLIENT_DIR} -ne`>
+##################################################################################
 FILELIST_PATH=${OUTPUT_DIR}/cplist_tmp.txt
 DES_DIR="${1}"
 SRC_DIR=${2:-$CLIENT_DIR}

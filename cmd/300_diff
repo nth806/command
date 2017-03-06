@@ -1,0 +1,10 @@
+##################################################################################
+# Check different between two files or folder of TTV source and client repository
+#
+#   Parameters
+#&    [1]: Path to file or folder. If you lead file or folder path
+#&         with ${TTV_SOURCE} or ${CLIENT_DIR}, this will be erased.
+##################################################################################
+FILE_PATH="$1"
+diff_check
+diff_run

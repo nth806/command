@@ -1,5 +1,0 @@
-FILE_PATH="$1"
-
-diff_check
-
-diff_run

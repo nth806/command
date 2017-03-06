@@ -3,14 +3,14 @@ function __trim_prefix () {
 
   cmn_isStartWith $CLIENT_DIR/ "${FILE_PATH}"
   if [ $? -eq 0 ] ; then
-  	FILE_PATH=`cmn_rmLeadingWith $CLIENT_DIR/ "${FILE_PATH}"`
-  	return
+    FILE_PATH=`cmn_rmLeadingWith $CLIENT_DIR/ "${FILE_PATH}"`
+    return
   fi
 
   cmn_isStartWith $TTV_SR/ "${FILE_PATH}"
   if [ $? -eq 0 ] ; then
-  	FILE_PATH=`cmn_rmLeadingWith $TTV_SRC/ "${FILE_PATH}"`
-  	return
+    FILE_PATH=`cmn_rmLeadingWith $TTV_SRC/ "${FILE_PATH}"`
+    return
   fi
 }
 

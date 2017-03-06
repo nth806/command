@@ -209,16 +209,23 @@ function push2client_check () {
 
   local ARR_SYN_PATHS
   local SYN_PATH
+  local IS_SUBPATH
 
   if [ "x${SYN_PATHS}" = "x" ]; then
     ARR_SYN_PATHS=('')
+    IS_SUBPATH=1
   else
     IFS=',;:' read -r -a ARR_SYN_PATHS <<< "${SYN_PATHS}"
+    IS_SUBPATH=0
   fi
 
   for SYN_PATH in "${ARR_SYN_PATHS[@]}"
   do
     SYN_PATH=`cmn_trimSpaces "${SYN_PATH}"`
+
+    if [ $IS_SUBPATH -eq 0 ] && [ "x${SYN_PATH}" = "x" ]; then
+      continue
+    fi
 
     if [ ! -d "${TTV_SRC}/${SYN_PATH}" ]; then
       mkdir -p "${TTV_SRC}/${SYN_PATH}"

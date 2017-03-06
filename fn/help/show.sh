@@ -17,7 +17,7 @@ function __process_function () {
 }
 
 function __process_line () {
-  local line=`cmn_rmTrailingSpaces "${1}"`
+  local line=`cmn_trimSpaces "${1}"`
 
   if [ ${HELP_MSG_STT} -ne 0 ] ; then
     if [ "x${line:0:1}" != 'x#' ] ; then

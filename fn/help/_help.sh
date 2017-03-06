@@ -14,7 +14,7 @@ function help_help_list_command () {
     is_start=2
     while read line;
     do
-      line=`cmn_rmTrailingSpaces "${line}"`
+      line=`cmn_trimSpaces "${line}"`
       # First line '#...'
       if [ $is_start -eq 2 ]; then
         if [ "x${line:0:1}" != 'x#' ] ; then
@@ -38,7 +38,7 @@ function help_help_list_command () {
         continue
       fi
 
-      if [ "x${line:0:1}" != 'x#' ] || [ "x${line}" = 'x#' ] || [ "x${line:0:2}" = 'x##' ]; then
+      if [ "x${line:0:1}" != 'x#' ] || [ "x${line}" == 'x#' ] || [ "x${line:0:2}" = 'x##' ]; then
         break
       fi
 

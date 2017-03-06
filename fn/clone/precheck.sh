@@ -17,7 +17,4 @@ function clone_precheck () {
   then
     cmn_exitAbnormal "'${SYNC_TRACKER}' is not an empty folder!"
   fi
-  touch "${SYNC_TRACKER}/.gitignore"
-
-  touch "${BASE_DIR}/${OUTPUT_DIR}/.gitignore"
 }
