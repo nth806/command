@@ -18,7 +18,7 @@ function cmn_exitAbnormal () {
 
 function cmn_showTitleStep () {
   ((CMN_COUNT+=1))
-  echo_Green "["'****'" `cmn_padNumber ${CMN_COUNT} 2`. ${1} "'****'"]" -n
+  echo_Green "["'****'" `cmn_padNumber ${CMN_COUNT} 2`. ${1} "'****'"]"
 }
 
 function cmn_confirmProcess () {
