@@ -23,6 +23,15 @@ function __is_in_ignore () {
   local ignore_path=
   for ignore_path in "${IGNORE_LIST[@]}"
   do
+    if [ ${ignore_path:0:1} = '!' ]; then
+      ignore_path=${ignore_path:1}
+
+      cmn_isStartWith "$ignore_path" "$1/"
+      if [ $? -eq 0 ] ; then
+        return 1
+      fi
+    fi
+
     cmn_isStartWith "$ignore_path" "$1/"
     if [ $? -eq 0 ] ; then
       return 0
