@@ -1,0 +1,9 @@
+##################################################################################
+# Clone client remote source
+#
+# ** Description **
+#&  Clone source from client remote source to ${CLIENT_DIR}
+##################################################################################
+fetch_check
+
+fetch_run

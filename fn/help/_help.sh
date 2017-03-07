@@ -1,5 +1,5 @@
-function help_help_command () {
-  echo "${DESPATCH_SCRIPT}"' help <command>'
+function help_help_required () {
+  echo -en '(\033[0;31m*\033[0m)'
 }
 
 function help_help_list_command () {

@@ -1,0 +1,21 @@
+##################################################################################
+# Run command outside bin directory
+#
+# ** Description **
+#   Parameters
+#     [1]: Script name, default check(.sh)
+##################################################################################
+RUNOUT_SCRIPT=
+if [ "x${1}" = "x" ]; then
+  RUNOUT_SCRIPT=check
+else
+  RUNOUT_SCRIPT="${1}"
+fi
+
+if [ -f ${RUNOUT_SCRIPT} ]; then
+  . ${RUNOUT_SCRIPT}
+elif [ -f "${RUNOUT_SCRIPT}.sh" ]; then
+  . ${RUNOUT_SCRIPT}.sh
+fi
+
+cmn_exitAbnormal "There is no script ${RUNOUT_SCRIPT}(.sh)"

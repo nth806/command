@@ -1,6 +1,6 @@
 ###########################################################
 # Help common function
 ###########################################################
-function help_cmn_required () {
-  echo -en '(\033[0;31m*\033[0m)'
+function help_cmn_command () {
+  echo "${DESPATCH_SCRIPT}"' help <command>'
 }
