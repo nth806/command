@@ -19,10 +19,10 @@ function git_statusBranch () {
     # "Up-to-date"
     return 0
   elif [ "x$l_LOCAL" = "x$l_BASE" ]; then
-  	# Need to pull
+    # Need to pull
     return 1
   elif [ "x$l_REMOTE" = "x$l_BASE" ]; then
-  	# Need to push
+    # Need to push
     return 2
   fi
 

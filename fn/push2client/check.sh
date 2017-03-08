@@ -52,7 +52,7 @@ function __process_line_diff () {
   cmn_isStartWith "${prefix}" "${line}"
   if [ $? -eq 0 ]
   then
-    line=${line#$prefix}
+    linerunoute#$prefix}
     line=`echo "${line}" | sed -e "s/: /\//"`
     line=${line:1}
 

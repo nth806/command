@@ -67,7 +67,13 @@ function __verify_client_repo () {
     cmn_exitAbnormal 'Have not set email list yet'
   fi
 
-  for email in `git log --pretty=format:'%ae' HEAD..origin/${GIT_DEFAULT_BRANCH}`
+  local sync_time
+  if [ -f "${SYNC_TRACKER}/${GIT_DEFAULT_BRANCH}" ]; then
+    sync_time=`cat "${SYNC_TRACKER}/${GIT_DEFAULT_BRANCH}" | egrep '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}( [+|-]?\d{4})?$'`
+  fi
+
+  sync_time=${sync_time:-1970-01-01 00:00:00 +0000}
+  for email in `git log --pretty=format:'%ae' HEAD..origin/${GIT_DEFAULT_BRANCH} --since="${sync_time}"`
   do
     if [[ ! " ${EMAIL_LIST[@]} " =~ " ${email} " ]]; then
       cmn_exitAbnormal "There is a commit by <${email}> on remote repository. Please ask your leader how to solve this."

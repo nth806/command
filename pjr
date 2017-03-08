@@ -36,7 +36,12 @@ then
   __help_wrong_despatch
 fi
 
-SCRIPTNAME=${1}
+if [ "x${1}" = "x-" ]; then
+  SCRIPTNAME=runout
+else
+  SCRIPTNAME=${1}
+fi
+
 CODE_SCRIPT=`find ${BIN_DIR}/cmd -type f -name [[:digit:]][[:digit:]][[:digit:]]_${SCRIPTNAME}`
 if [ "x" = "x${CODE_SCRIPT}" ]
 then
