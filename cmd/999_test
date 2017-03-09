@@ -4,4 +4,3 @@
 # ** Description **
 #   Developer use when develop commands. It should not be pushed to remote repository.
 ##################################################################################
-test_call $@

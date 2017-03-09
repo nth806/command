@@ -58,7 +58,7 @@ function push2client_exec () {
 
   git commit -m "${CI_MSG}"
 
-  cmn_confirm4Exit "Branch which is push to be <${GIT_DEFAULT_BRANCH}>"
-  git push origin "${GIT_DEFAULT_BRANCH}"
+  cmn_confirm4Exit "Branch which is push to be <${GIT_CLIENT_BRANCH}>"
+  git push origin "${GIT_CLIENT_BRANCH}"
   cd "${BASE_DIR}"
 }

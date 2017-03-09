@@ -8,7 +8,7 @@ function init_prepocess () {
      [ "x" = "x${VAGRANT_GUESS_IP}" ] || \
      [ "x" = "x${VAGRANT_LOCAL_DOMAIN}" ]  || \
      [ "x" = "x${TTV_REP_URL}" ]  || \
-     [ "x" = "x${GIT_DEFAULT_BRANCH}" ] 
+     [ "x" = "x${GIT_CLIENT_BRANCH}" ] 
   then
     cmn_exitAbnormal "Please configure your setting variables in '${BASE_DIR_SHORT}/config/constant.sh'"
   fi

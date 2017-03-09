@@ -9,14 +9,16 @@ function clone_getsource () {
   fi
   cd ${CLIENT_DIR}
   local cur_branch=`git_currentBranch`
-  if [ "x${GIT_DEFAULT_BRANCH}" != "x${cur_branch}" ]
+  if [ "x${GIT_CLIENT_BRANCH}" != "x${cur_branch}" ]
   then
-    git checkout "${GIT_DEFAULT_BRANCH}"
+    git checkout "${GIT_CLIENT_BRANCH}"
     if [ $? -ne 0 ]
     then
-       cmn_exitAbnormal "Cann't checkout branch [${GIT_DEFAULT_BRANCH}]"
+       cmn_exitAbnormal "Cann't checkout branch [${GIT_CLIENT_BRANCH}]"
     fi
   fi
+
+  git log -1 --pretty=format:%ad --date=iso > ${SYNC_TRACKER}/${GIT_CLIENT_BRANCH}
 
   cd ${BASE_DIR}
   echo_info 'Copy client-source to ttv-source'

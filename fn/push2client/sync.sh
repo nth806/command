@@ -16,19 +16,19 @@ function __add_email_list () {
 
 
 function __verify_client_repo () {
-  if [ 'x'`git_currentBranch` != 'x'"${GIT_DEFAULT_BRANCH}" ]
+  if [ 'x'`git_currentBranch` != 'x'"${GIT_CLIENT_BRANCH}" ]
   then
-    git checkout "${GIT_DEFAULT_BRANCH}"
+    git checkout "${GIT_CLIENT_BRANCH}"
     if [ $? -ne 0 ]
     then
-      cmn_exitAbnormal 'Checking out branch <'${GIT_DEFAULT_BRANCH}'> (client repository) was failed, please check again'
+      cmn_exitAbnormal 'Checking out branch <'${GIT_CLIENT_BRANCH}'> (client repository) was failed, please check again'
     fi
   fi
 
-  git fetch origin "${GIT_DEFAULT_BRANCH}"
+  git fetch origin "${GIT_CLIENT_BRANCH}"
   if [ $? -ne 0 ]
   then
-    cmn_exitAbnormal 'Fetching <'${GIT_DEFAULT_BRANCH}'> (client repository) was failed, please check again'
+    cmn_exitAbnormal 'Fetching <'${GIT_CLIENT_BRANCH}'> (client repository) was failed, please check again'
   fi
 
   git_statusBranch
@@ -68,37 +68,37 @@ function __verify_client_repo () {
   fi
 
   local sync_time
-  if [ -f "${SYNC_TRACKER}/${GIT_DEFAULT_BRANCH}" ]; then
-    sync_time=`cat "${SYNC_TRACKER}/${GIT_DEFAULT_BRANCH}" | egrep '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}( [+|-]?\d{4})?$'`
+  if [ -f "${SYNC_TRACKER}/${GIT_CLIENT_BRANCH}" ]; then
+    sync_time=`cat "${SYNC_TRACKER}/${GIT_CLIENT_BRANCH}" | egrep '^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}( [+|-]?\d{4})?$'`
   fi
 
   sync_time=${sync_time:-1970-01-01 00:00:00 +0000}
-  for email in `git log --pretty=format:'%ae' HEAD..origin/${GIT_DEFAULT_BRANCH} --since="${sync_time}"`
+  for email in `git log --pretty=format:'%ae' HEAD..origin/${GIT_CLIENT_BRANCH} --since="${sync_time}"`
   do
     if [[ ! " ${EMAIL_LIST[@]} " =~ " ${email} " ]]; then
       cmn_exitAbnormal "There is a commit by <${email}> on remote repository. Please ask your leader how to solve this."
     fi
   done
 
-  git pull origin "$GIT_DEFAULT_BRANCH"
+  git pull origin "$GIT_CLIENT_BRANCH"
 }
 
 function push2client_sync () {
   cmn_showTitleStep "Synchronize source"
 
-  if [ 'x'`git_currentBranch` != 'x'"${GIT_TTV_DEFAULT_BRANCH}" ]
+  if [ 'x'`git_currentBranch` != 'x'"${GIT_TTV_BRANCH}" ]
   then
-    git checkout "${GIT_TTV_DEFAULT_BRANCH}"
+    git checkout "${GIT_TTV_BRANCH}"
     if [ $? -ne 0 ]
     then
-      cmn_exitAbnormal 'Checking out branch <'"${GIT_TTV_DEFAULT_BRANCH}"'> was failed, please check again'
+      cmn_exitAbnormal 'Checking out branch <'"${GIT_TTV_BRANCH}"'> was failed, please check again'
     fi
   fi
 
-  git pull origin "${GIT_TTV_DEFAULT_BRANCH}"
+  git pull origin "${GIT_TTV_BRANCH}"
   if [ $? -ne 0 ]
   then
-    cmn_exitAbnormal 'Pulling '"${GIT_TTV_DEFAULT_BRANCH}"' source was failed, please check again'
+    cmn_exitAbnormal 'Pulling '"${GIT_TTV_BRANCH}"' source was failed, please check again'
   fi
 
   local lc_msg=`git stash`
