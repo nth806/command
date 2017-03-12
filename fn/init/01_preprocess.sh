@@ -4,7 +4,6 @@ function init_prepocess () {
   if [ "x" = "x${PROJECT_ID}" ] || \
      [ "x" = "x${CLIENT_REP_URL}" ] || \
      [ "x" = "x${VAGRANT_BOX_NAME}" ] || \
-     [ "x" = "x${VAGRANT_BOX_URL}" ] || \
      [ "x" = "x${VAGRANT_GUESS_IP}" ] || \
      [ "x" = "x${VAGRANT_LOCAL_DOMAIN}" ]  || \
      [ "x" = "x${TTV_REP_URL}" ]  || \
@@ -37,9 +36,9 @@ function init_prepocess () {
     mkdir -p "${BASE_DIR}/${TTV_SRC}"
   fi
 
-  rm -rf "${SYNC_TRACKER}"
-  mkdir -p "${SYNC_TRACKER}"
-  touch "${SYNC_TRACKER}/.gitignore"
+  rm -rf "${SYNC_TRACKER_DIR}"
+  mkdir -p "${SYNC_TRACKER_DIR}"
+  touch "${SYNC_TRACKER_DIR}/.gitignore"
 
   # Make output folder (a temporary folder)
   mkdir -p "${BASE_DIR}/${OUTPUT_DIR}"

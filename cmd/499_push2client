@@ -12,7 +12,6 @@
 #   error if push 1 more parameter only
 #&    `echo $DESPATCH_SCRIPT` push2client <ttv_branch> <client_branch>
 ##################################################################################
-EMAIL_FILE=../config/email_list
 OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
 INPUT_TMP=../${OUTPUT_DIR}/input.txt
 IGNORE_FILE=config/sync_ignore

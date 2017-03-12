@@ -55,7 +55,7 @@ function help_show () {
   if [ "x" = "x${COMMAND_HELP_SCRIPT}" ]
   then
     echo_Red "Not support command '${COMMAND_HELP}'"
-    __help_wrong_despatch
+    help_wrong_despatch
   fi
 
   HELP_MSG_STT=1

@@ -4,7 +4,7 @@ function fetch_check () {
   if [ "x${CLIENT_REP_URL}" = "x" ]; then
     echo_Red 'The project has not been initialized yet'
     echo 'Please try'
-    cmn_exitAbnormal "  $(help_cmn_command)"
+    cmn_exitAbnormal "  $(help_command)"
   fi
 
   if [ ! -d ${CLIENT_DIR} ]; then

@@ -4,7 +4,7 @@
 # ** Description **
 #   Run this after init command and only one time
 ##################################################################################
-clone_precheck
+clone_precheck $@
 
 clone_buildvagrant
 

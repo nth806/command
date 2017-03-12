@@ -14,26 +14,25 @@ if [ ! -f '../config/constant.sh' ] ; then
 fi
 . ../config/constant.sh
 
-function __help_wrong_despatch () {
-  echo
-  echo 'For help command, please try:'
-  echo -en '  '
-  echo_Blue "${DESPATCH_SCRIPT} help"
-  echo
-  exit 1;
-}
-
 # Initializing function
-for lc_file in `find _inc/ -type f -name '*.sh'`
+for lc_file in `find _inc -type f -name '*.sh'`
 do
   . $lc_file
 done
 unset lc_file
 
+# Component functions
+for lc_file in `find comp -type f -name '*.sh'`
+do
+  . $lc_file
+done
+unset lc_file
+
+# Parse to get command
 if [ "x" = "x${1}" ]
 then
   echo_Red "Please use '${DESPATCH_SCRIPT} <command>'"
-  __help_wrong_despatch
+  help_wrong_despatch
 fi
 
 if [ "x${1}" = "x-" ]; then
@@ -46,7 +45,7 @@ CODE_SCRIPT=`find ${BIN_DIR}/cmd -type f -name [[:digit:]][[:digit:]][[:digit:]]
 if [ "x" = "x${CODE_SCRIPT}" ]
 then
   echo_Red "Not support command '${SCRIPTNAME}'"
-  __help_wrong_despatch
+  help_wrong_despatch
 fi
 
 if [ -d "${BIN_DIR}/fn/${SCRIPTNAME}" ]
@@ -58,6 +57,7 @@ then
   unset lc_file
 fi
 
+
 ################# Parse parameters #################
 shift
 
@@ -67,7 +67,8 @@ BASE_DIR=`cd $(dirname "${BIN_DIR}"); pwd`
 cd "${BASE_DIR}"
 
 # Constants
-SYNC_TRACKER="${BASE_DIR}/config/.sync_tracker"
+SYNC_TRACKER_DIR="${BASE_DIR}/config/.sync_tracker"
+EMAIL_LIST_FILE="${BASE_DIR}/config/email_list"
 
 CMN_COUNT=0
 . ${CODE_SCRIPT}

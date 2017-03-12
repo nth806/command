@@ -18,7 +18,7 @@ function clone_getsource () {
     fi
   fi
 
-  git log -1 --pretty=format:%ad --date=iso > ${SYNC_TRACKER}/${GIT_CLIENT_BRANCH}
+  git log -1 --pretty=format:%ad --date=iso > ${SYNC_TRACKER_DIR}/${GIT_CLIENT_BRANCH}
 
   cd ${BASE_DIR}
   echo_info 'Copy client-source to ttv-source'
