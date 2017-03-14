@@ -28,6 +28,7 @@ function comp_git_verify_client_repo () {
   local stt=$?
   if [ $stt -eq 0 ] ; then
     # Up to date
+    cd ${BASE_DIR}
     return 0
   fi
 

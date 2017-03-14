@@ -2,7 +2,17 @@ function __process_line_msg () {
   local line=`cmn_rmTrailingSpaces "${1}"`
 
   if [ ${MSG_STT} -ne 0 ] ; then
+    if [ ${MSG_STT} -eq 2 ]; then
+      MSG_STT=1
+      return
+    fi
+
     if [ "x${line}" = "x" ]; then
+      return
+    fi
+
+    if [ "x${line:0:2}" = 'x##' ] ; then
+      MSG_STT=1
       return
     fi
 
@@ -38,7 +48,7 @@ function push2client_exec () {
   vi + -c 'startinsert' ${INPUT_TMP}
 
   CI_MSG=
-  MSG_STT=1
+  MSG_STT=2
   local line=
   PRI_IFS=$IFS
   export IFS=$'\n'
