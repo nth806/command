@@ -1,5 +1,5 @@
 function __cpPath () {
-  local line=`echo ${1} | sed -e 's/\r//g'`
+  local line=`echo ${1}`
   line=`cmn_trimSpaces "${line}"`
   
   if [ ${START_STT} -ne 0 ] ; then

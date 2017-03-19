@@ -17,6 +17,6 @@ function cplist_check () {
   SRC_DIR=`cmn_trimSlash ${SRC_DIR}`
   if [ ! -d "$SRC_DIR" ]
   then
-    cmn_confirm4Exit "Source directory <${SRC_DIR}> does not exist!"
+    cmn_exitAbnormal "Source directory <${SRC_DIR}> does not exist!"
   fi
 }
