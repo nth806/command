@@ -1,16 +1,16 @@
 ##################################################################################
-# Push updated source from TTV source to client repository
+# Get client repository source then push to TTV source
 #
 # ** Description **
 #   Type 'y' for all questions if you want to push automatically
 #   If you need to check again, able to check and push manually
 #
-#&  If there is no parameter, this copies source from TTV `echo_Blue master -ne` branch and push to
-#&    <GIT_CLIENT_BRANCH:`push2client_help_branch`> branch
+#&  If there is no parameter, this pull source from <GIT_CLIENT_BRANCH:`sync_help_branch`> then
+#&    synchronize to branch TTV `echo_Blue master -ne` branch and push to remote TTV repository
 #
-#   If you specify TTV branch to client branch, must input more 2 parameters, you will get
+#   If you specify client branch to TTV, must input more 2 parameters, you will get
 #   error if push 1 more parameter only
-#&    `echo $DESPATCH_SCRIPT` push2client <ttv_branch> <client_branch>
+#&    `echo $DESPATCH_SCRIPT` sync <client branch> <ttv branch>
 ##################################################################################
 OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
 OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
@@ -19,19 +19,19 @@ IGNORE_FILE=config/sync_ignore
 
 # There is one parameter is shifted
 if [ "x${1}" != "x" ]; then
-  GIT_TTV_BRANCH=${1}
+  GIT_CLIENT_BRANCH=${1}
 
   if [ "x${2}" = "x" ]; then
-    cmn_exitAbnormal 'Please add parameter of client branch'
+    cmn_exitAbnormal 'Please add parameter of TTV branch'
   fi
 
-  GIT_CLIENT_BRANCH=${2}
+  GIT_TTV_BRANCH=${2}
 else
   GIT_TTV_BRANCH=master
 fi
 
-push2client_sync
+sync_sync
 
-push2client_check
+sync_check
 
-push2client_exec
+sync_exec

@@ -1,4 +1,4 @@
-function push2client_sync () {
+function sync_sync () {
   cmn_showTitleStep "Synchronize source"
 
   if [ 'x'`git_currentBranch` != 'x'"${GIT_TTV_BRANCH}" ]
