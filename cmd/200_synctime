@@ -1,0 +1,13 @@
+##################################################################################
+# Set time tracker is current datetime
+#
+# Parameters
+#     [1]: The (client repository) branch which need to be set synchronizing time
+#&       Default: 
+##################################################################################
+if [ "x$1" != "x" ]; then
+  GIT_CLIENT_BRANCH=$1
+fi
+
+synctime_check
+synctime_run
