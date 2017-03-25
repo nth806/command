@@ -244,7 +244,7 @@ function sync_check () {
       mkdir -p "${CLIENT_DIR}/${SYN_PATH}"
     fi
 
-    for line in `diff -rq -X $BIN_FOLDER/cfg/sync_ignore -X config/sync_ignore_diff "${TTV_SRC}/${SYN_PATH}" "${CLIENT_DIR}/${SYN_PATH}"`
+    for line in `diff -rq -X "${BIN_DIR}/cfg/sync_ignore" -X config/sync_ignore_diff "${TTV_SRC}/${SYN_PATH}" "${CLIENT_DIR}/${SYN_PATH}"`
     do
       __process_line_diff "${line}"
     done

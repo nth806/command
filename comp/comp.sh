@@ -44,3 +44,20 @@ function comp_input_list () {
   echo >> ${FILELIST_PATH}
   vi + -c 'startinsert' ${FILELIST_PATH}
 }
+
+function comp_check_config () {
+  if [ ! -f 'config/constant.sh' ]; then
+    cmn_exitAbnormal "There is no configuration file 'config/constant.sh'"
+  fi
+
+  if [ "x" = "x${PROJECT_ID}" ] || \
+     [ "x" = "x${CLIENT_REP_URL}" ] || \
+     [ "x" = "x${VAGRANT_BOX_NAME}" ] || \
+     [ "x" = "x${VAGRANT_GUESS_IP}" ] || \
+     [ "x" = "x${VAGRANT_LOCAL_DOMAIN}" ]  || \
+     [ "x" = "x${TTV_REP_URL}" ]  || \
+     [ "x" = "x${GIT_CLIENT_BRANCH}" ] 
+  then
+    cmn_exitAbnormal "Please configure your setting variables in 'config/constant.sh'"
+  fi
+}
