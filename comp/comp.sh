@@ -33,3 +33,14 @@ function comp_get_email_list () {
     cmn_exitAbnormal 'Have not set email list yet'
   fi
 }
+
+function comp_input_list () {
+  echo "###############################################################################" > ${FILELIST_PATH}
+  echo "# We are using vi for inputting list of files or directories" >> ${FILELIST_PATH}
+  echo "#" >> ${FILELIST_PATH}
+  echo "# Sequentially input line by line for files or directories following" >> ${FILELIST_PATH}
+  echo "#   explanation." >> ${FILELIST_PATH}
+  echo "###############################################################################" >> ${FILELIST_PATH}
+  echo >> ${FILELIST_PATH}
+  vi + -c 'startinsert' ${FILELIST_PATH}
+}
