@@ -13,8 +13,7 @@
 #&    `echo $DESPATCH_SCRIPT` sync <client branch> <ttv branch>
 ##################################################################################
 OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
-OUTPUT_TMP=${OUTPUT_DIR}/tmp.txt
-INPUT_TMP=${BASE_DIR}/${OUTPUT_DIR}/input.txt
+INPUT_TMP=../${OUTPUT_DIR}/input.txt
 IGNORE_FILE=config/sync_ignore
 
 # There is one parameter is shifted

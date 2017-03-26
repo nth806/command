@@ -19,6 +19,7 @@ function clone_precheck () {
   if [ $? -ne 0 ]; then
     cmn_exitAbnormal "'${SYNC_TRACKER_DIR}' is not an empty folder!"
   fi
+  touch "${SYNC_TRACKER_DIR}/.gitignore"
 
   if [ "x${VAGRANT_BOX_URL}" = "x" ]; then
     VAGRANT_BOX_URL="${VAGRANT_BOX_NAME}"

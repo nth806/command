@@ -22,8 +22,8 @@ function fetch_run () {
         cmn_exitAbnormal "There is a commit by <${email}> on remote repository. Please ask your leader how to solve this."
       fi
     done
-  else
-    git checkout "${GIT_CLIENT_BRANCH}"
   fi
+  git checkout "${GIT_CLIENT_BRANCH}"
+
   cd  ${BASE_DIR}
 }

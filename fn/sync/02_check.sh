@@ -53,21 +53,13 @@ function __process_line_diff () {
   if [ $? -eq 0 ]
   then
     line=${line#$prefix}
-    line=`echo "${line}" | sed -e "s/: /\//"`
+    line=`echo "${line}" | sed -e 's|/\{0,1\}: |/|'`
     line=${line:1}
 
     __is_in_ignore "${line}"
     if [ $? -eq 0 ] ; then
       return 0
     fi
-
-    cd ${TTV_SRC}
-    git ls-files "${line}" --error-unmatch 1>/dev/null 2>/dev/null
-    if [ $? -ne 0 ] ; then
-      cd "${BASE_DIR}"
-      return 0
-    fi
-    cd "${BASE_DIR}"
 
     if [ -f "${TTV_SRC}/${line}" ]
     then
@@ -93,11 +85,6 @@ function __process_line_diff () {
       return 0
     fi
 
-    git ls-files "${TTV_SRC}/${line}" --error-unmatch 1>/dev/null 2>/dev/null
-    if [ $? -ne 0 ] ; then
-      return 0
-    fi
-
     echo "Update file ${line}"
     echo "+ ${line}" >> ${OUTPUT_TMP}
     return 0
@@ -108,21 +95,13 @@ function __process_line_diff () {
   if [ $? -eq 0 ]
   then
     line=${line#$prefix}
-    line=`echo "${line}" | sed -e "s/: /\//"`
+    line=`echo "${line}" | sed -e 's|/\{0,1\}: |/|'`
     line=${line:1}
 
     __is_in_ignore "${line}"
     if [ $? -eq 0 ] ; then
       return 0
     fi
-
-    cd ${CLIENT_DIR}
-    git ls-files "${line}" --error-unmatch 1>/dev/null 2>/dev/null
-    if [ $? -ne 0 ] ; then
-      cd "${BASE_DIR}"
-      return 0
-    fi
-    cd "${BASE_DIR}"
 
     if [ -f "${CLIENT_DIR}/${line}" ]
     then
@@ -137,7 +116,7 @@ function __process_line_diff () {
 }
 
 function __process_line_ci () {
-  local path=`echo ${1} | sed -e 's/\r//g'`
+  local path=`echo ${1}`
   local prefix=
   local vc=
   if [ "x${path}" = "x" ]; then
@@ -186,7 +165,7 @@ function __process_line_ci () {
       ;;
   esac
 
-  cd $BASE_DIR
+  cd "${BASE_DIR}"
   rm -rf ${OUTPUT_TMP}
 }
 

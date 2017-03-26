@@ -23,9 +23,9 @@ function init_prepocess () {
     mkdir -p "${BASE_DIR}/${TTV_SRC}"
   fi
 
+  # Make synchronize tracker folder
   rm -rf "${SYNC_TRACKER_DIR}"
-  mkdir -p "${SYNC_TRACKER_DIR}"
-  touch "${SYNC_TRACKER_DIR}/.gitignore"
+  mkdir "${SYNC_TRACKER_DIR}"
 
   # Make output folder (a temporary folder)
   mkdir -p "${BASE_DIR}/${OUTPUT_DIR}"
