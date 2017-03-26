@@ -29,9 +29,9 @@ function __process_line_msg () {
 }
 
 function push2client_exec () {
-  cmn_showTitleStep 'Push source to client repository'
+  comp_show_title_step 'Push source to client repository'
   cd $CLIENT_DIR
-  echo_Yellow "Please comfirm status before commiting:"
+  echo_yellow "Please comfirm status before commiting:"
   echo 'START ----------------'
   echo
   git status
@@ -62,7 +62,7 @@ function push2client_exec () {
 
   if [ "x${CI_MSG}" = "x" ]
   then
-    echo_Yellow "Please commit manually"
+    echo_yellow "Please commit manually"
     cmn_exitNormal
   fi
 

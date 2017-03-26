@@ -1,5 +1,5 @@
 function clone_buildvagrant () {
-  cmn_showTitleStep 'Build README.md and VagrantFile'
+  comp_show_title_step 'Build README.md and VagrantFile'
 
   local path=README.md
   local vagrant_file=vagrant/Vagrantfile

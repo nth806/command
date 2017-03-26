@@ -34,15 +34,9 @@ function comp_get_email_list () {
   fi
 }
 
-function comp_input_list () {
-  echo "###############################################################################" > ${FILELIST_PATH}
-  echo "# We are using vi for inputting list of files or directories" >> ${FILELIST_PATH}
-  echo "#" >> ${FILELIST_PATH}
-  echo "# Sequentially input line by line for files or directories following" >> ${FILELIST_PATH}
-  echo "#   explanation." >> ${FILELIST_PATH}
-  echo "###############################################################################" >> ${FILELIST_PATH}
-  echo >> ${FILELIST_PATH}
-  vi + -c 'startinsert' ${FILELIST_PATH}
+function comp_show_title_step () {
+  ((CMN_COUNT+=1))
+  echo_green "["'****'" `cmn_padNumber ${CMN_COUNT} 2`. ${1} "'****'"]"
 }
 
 function comp_check_config () {
@@ -60,4 +54,15 @@ function comp_check_config () {
   then
     cmn_exitAbnormal "Please configure your setting variables in 'config/constant.sh'"
   fi
+}
+
+function comp_input_list () {
+  echo "###############################################################################" > ${FILELIST_PATH}
+  echo "# We are using vi for inputting list of files or directories" >> ${FILELIST_PATH}
+  echo "#" >> ${FILELIST_PATH}
+  echo "# Sequentially input line by line for files or directories following" >> ${FILELIST_PATH}
+  echo "#   explanation." >> ${FILELIST_PATH}
+  echo "###############################################################################" >> ${FILELIST_PATH}
+  echo >> ${FILELIST_PATH}
+  vi + -c 'startinsert' ${FILELIST_PATH}
 }

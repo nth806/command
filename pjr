@@ -30,8 +30,8 @@ unset lc_file
 DESPATCH_SCRIPT=`cmn_mainBasename "${DESPATCH_SCRIPT}"`
 if [ "x" = "x${1}" ]
 then
-  echo_Red "Please use '${DESPATCH_SCRIPT} <command>'"
-  help_wrong_despatch
+  echo_red "Please use '${DESPATCH_SCRIPT} <command>'"
+  comp_help_wrong_despatch
 fi
 
 if [ "x${1}" = "x-" ]; then
@@ -43,8 +43,8 @@ fi
 CODE_SCRIPT=`find ${BIN_DIR}/cmd -type f -name [[:digit:]][[:digit:]][[:digit:]]_${SCRIPTNAME}`
 if [ "x" = "x${CODE_SCRIPT}" ]
 then
-  echo_Red "Not support command '${SCRIPTNAME}'"
-  help_wrong_despatch
+  echo_red "Not support command '${SCRIPTNAME}'"
+  comp_help_wrong_despatch
 fi
 
 if [ -d "${BIN_DIR}/fn/${SCRIPTNAME}" ]

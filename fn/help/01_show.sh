@@ -2,7 +2,7 @@ function __process_function () {
   local line="${1}"
   local fn=`echo "${line}" | cut -d \@ -f 2`
 
-  cmn_function_exists $fn
+  cmn_functionExists $fn
   if [ $? -ne 0 ]; then
     echo "${line}"
     return
@@ -54,8 +54,8 @@ function help_show () {
 
   if [ "x" = "x${COMMAND_HELP_SCRIPT}" ]
   then
-    echo_Red "Not support command '${COMMAND_HELP}'"
-    help_wrong_despatch
+    echo_red "Not support command '${COMMAND_HELP}'"
+    comp_help_wrong_despatch
   fi
 
   HELP_MSG_STT=1

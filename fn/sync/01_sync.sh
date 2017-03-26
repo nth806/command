@@ -1,5 +1,5 @@
 function sync_sync () {
-  cmn_showTitleStep "Synchronize source"
+  comp_show_title_step "Synchronize source"
 
   if [ 'x'`git_currentBranch` != 'x'"${GIT_TTV_BRANCH}" ]
   then

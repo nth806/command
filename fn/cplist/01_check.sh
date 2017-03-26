@@ -1,5 +1,5 @@
 function cplist_check () {
-  cmn_showTitleStep "Check parameters"
+  comp_show_title_step "Check parameters"
 
   if [ "x${DES_DIR}" = "x" ]
   then

@@ -15,7 +15,7 @@ function __trim_prefix () {
 }
 
 function diff_check () {
-  cmn_showTitleStep 'Check Path'
+  comp_show_title_step 'Check Path'
 
   __trim_prefix
   if [ "x${FILE_PATH}" = "x" ] ; then

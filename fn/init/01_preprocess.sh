@@ -1,5 +1,5 @@
 function init_prepocess () {
-  cmn_showTitleStep 'Create necessary folders'
+  comp_show_title_step 'Create necessary folders'
 
   mkdir -p "${BASE_DIR}/${CLIENT_DIR}"
   cmn_isEmptyFolder "${BASE_DIR}/${CLIENT_DIR}"

@@ -191,7 +191,7 @@ function __process_line_ci () {
 }
 
 function sync_check () {
-  cmn_showTitleStep 'Check source preparing for pushing'
+  comp_show_title_step 'Check source preparing for pushing'
   local line=
   local PRI_IFS
 
@@ -255,7 +255,7 @@ function sync_check () {
   echo 'END ------------------'
 
   if [ ! -f ${OUTPUT_TMP} ] ; then
-    echo_Yellow "There is no updated file"
+    echo_yellow "There is no updated file"
     cmn_exitNormal
   fi
 

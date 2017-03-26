@@ -6,7 +6,7 @@
 #   If you need to check again, able to check and push manually
 #
 #&  If there is no parameter, this pull source from <GIT_CLIENT_BRANCH:`sync_help_branch`> then
-#&    synchronize to branch TTV `echo_Blue master -ne` branch and push to remote TTV repository
+#&    synchronize to branch TTV `echo_blue master -ne` branch and push to remote TTV repository
 #
 #   If you specify client branch to TTV, must input more 2 parameters, you will get
 #   error if push 1 more parameter only

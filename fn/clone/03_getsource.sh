@@ -1,5 +1,5 @@
 function clone_getsource () {
-  cmn_showTitleStep 'Get source'
+  comp_show_title_step 'Get source'
 
   echo_info 'Clone client repository'
   git clone ${CLIENT_REP_URL} ${CLIENT_DIR}

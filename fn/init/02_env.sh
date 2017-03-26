@@ -1,5 +1,5 @@
 function init_env () {
-  cmn_showTitleStep 'Initialize enviroment'
+  comp_show_title_step 'Initialize enviroment'
   rm -rf .git
   git init
   git remote add origin "${TTV_REP_URL}"

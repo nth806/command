@@ -1,5 +1,5 @@
 function rmlist_check () {
-  cmn_showTitleStep "Check parameters"
+  comp_show_title_step "Check parameters"
 
   REMOVE_BASE_DIR=`cmn_trimSlash ${REMOVE_BASE_DIR}`
   if [ ! -d "${REMOVE_BASE_DIR}" ]

@@ -2,7 +2,7 @@
 # Help command
 #
 # For detail usage of command, please run:
-#   @help_command@
+#   @comp_help_command@
 #
 # ****
 # List of commands

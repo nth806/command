@@ -1,10 +1,10 @@
 function fetch_check () {
-  cmn_showTitleStep "Check folder ${CLIENT_DIR}"
+  comp_show_title_step "Check folder ${CLIENT_DIR}"
 
   if [ "x${CLIENT_REP_URL}" = "x" ]; then
-    echo_Red 'The project has not been initialized yet'
+    echo_red 'The project has not been initialized yet'
     echo 'Please try'
-    cmn_exitAbnormal "  $(help_command)"
+    cmn_exitAbnormal "  $(comp_help_command)"
   fi
 
   if [ ! -d ${CLIENT_DIR} ]; then

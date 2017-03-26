@@ -5,7 +5,7 @@
 #   Type 'y' for all questions if you want to push automatically
 #   If you need to check again, able to check and push manually
 #
-#&  If there is no parameter, this copies source from TTV `echo_Blue master -ne` branch and push to
+#&  If there is no parameter, this copies source from TTV `echo_blue master -ne` branch and push to
 #&    <GIT_CLIENT_BRANCH:`push2client_help_branch`> branch
 #
 #   If you specify TTV branch to client branch, must input more 2 parameters, you will get

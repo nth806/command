@@ -1,5 +1,5 @@
 function clone_precheck () {
-  cmn_showTitleStep 'Precheck for getting source'
+  comp_show_title_step 'Precheck for getting source'
 
   cmn_isEmptyFolder "${BASE_DIR}/${CLIENT_DIR}"
   if [ $? -ne 0 ]; then

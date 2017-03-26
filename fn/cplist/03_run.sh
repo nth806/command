@@ -38,7 +38,7 @@ function __cpPath () {
 }
 
 function cplist_run () {
-  cmn_showTitleStep "Copy files"
+  comp_show_title_step "Copy files"
 
   echo 'START ----------------'
   START_STT=1

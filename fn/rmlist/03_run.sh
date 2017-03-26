@@ -28,11 +28,11 @@ function __rmPath () {
     return
   fi
 
-  echo_Red "Path ${line} doesn't exist"
+  echo_red "Path ${line} doesn't exist"
 }
 
 function rmlist_run () {
-  cmn_showTitleStep "Remove files"
+  comp_show_title_step "Remove files"
 
   echo 'START ----------------'
   START_STT=1

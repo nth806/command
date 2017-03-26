@@ -16,13 +16,8 @@ function cmn_exitAbnormal () {
   exit 255
 }
 
-function cmn_showTitleStep () {
-  ((CMN_COUNT+=1))
-  echo_Green "["'****'" `cmn_padNumber ${CMN_COUNT} 2`. ${1} "'****'"]"
-}
-
 function cmn_confirmProcess () {
-  echo_Yellow "${1}" -n
+  echo_yellow "${1}" -n
   local l_input
   read -p "  ${2}" l_input
   l_input=`cmn_toLower ${l_input}`
@@ -164,7 +159,7 @@ function cmn_isEmptyFolder () {
 # Function functions
 ###########################################################
 # Check whether or not function (internal functions only)
-function cmn_function_exists () {
+function cmn_functionExists () {
   if [ "x" = "x${1}" ]
   then
     return 1
@@ -180,7 +175,7 @@ function cmn_function_exists () {
 }
 
 # Check whether or not function including external function
-function cmn_bash_exists () {
+function cmn_bashExists () {
   if [ "x" = "x${1}" ]
   then
     return 1

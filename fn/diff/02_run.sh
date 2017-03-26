@@ -1,5 +1,5 @@
 function diff_run () {
-  cmn_showTitleStep 'Run diff'
+  comp_show_title_step 'Run diff'
 
   DIFF_FUNCTION=diff
   DIFF_MERGE=sgdm

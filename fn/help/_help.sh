@@ -28,7 +28,7 @@ function help_help_list_command () {
 
       if [ $is_start -eq 1 ]; then
         is_start=0
-        echo_Yellow "${cmd}: " -ne
+        echo_yellow "${cmd}: " -ne
         if [ "x${line:0:1}" != 'x#' ] ; then
           echo "--No help--"
           break
