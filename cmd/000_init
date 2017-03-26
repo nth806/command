@@ -5,8 +5,7 @@
 #   Run firstly and one and only one time
 #
 #   Parameters:
-#     [1] Git repository: command standard source
-#         default: git@gitlab.com:nth806/std_command.git
+#     None
 ##################################################################################
 init_prepocess
 

@@ -18,14 +18,6 @@ function init_env () {
   git add .
   git add --force ${OUTPUT_DIR}/.gitignore
 
-  local submodule
-  if [ "x${1}" = "x" ]; then
-    submodule='git@gitlab.com:nth806/std_command.git'
-  else
-    submodule="${1}"
-  fi
-  git submodule add "${submodule}" bin
-
   git commit -m "Add initializing project"
   git push -u origin master
 }
