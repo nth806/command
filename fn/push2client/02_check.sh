@@ -172,7 +172,6 @@ function __process_line_ci () {
 function push2client_check () {
   comp_show_title_step 'Check source preparing for pushing'
   local line=
-  local PRI_IFS
 
   rm -rf ${OUTPUT_TMP}
 
@@ -180,7 +179,6 @@ function push2client_check () {
   IS_IGNORE=1
   IGNORE_LIST=()
   if [ -f "${IGNORE_FILE}" ] ; then
-    PRI_IFS=$IFS
     export IFS=$'\n'
     while read line; do
       __add_ignore_list "${line}"
@@ -190,7 +188,6 @@ function push2client_check () {
   fi
 
   # Add to tmp files
-  PRI_IFS=$IFS
   export IFS=$'\n'
   echo -n 'START ----------------'
   echo -e '\033[1;35m'
@@ -239,7 +236,6 @@ function push2client_check () {
   fi
 
   cmn_confirm4Exit "Start to copy to client repository!"
-  PRI_IFS=$IFS
   export IFS=$'\n'
   while read line; do
     __process_line_ci "${line}"

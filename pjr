@@ -8,6 +8,14 @@ BASE_DIR=`pwd`
 DESPATCH_SCRIPT=$0
 BIN_DIR=`cd $(dirname "$0"); pwd`
 
+# Constants
+PRI_IFS=$IFS
+CLIENT_DIR=client_repository
+TTV_SRC=ttv_source
+OUTPUT_DIR=output
+SYNC_TRACKER_DIR="${BASE_DIR}/config/.sync_tracker"
+EMAIL_LIST_FILE="${BASE_DIR}/config/email_list"
+
 cd ${BIN_DIR}
 if [ -f "${BASE_DIR}/config/constant.sh" ] ; then
   . "${BASE_DIR}/config/constant.sh"
@@ -59,14 +67,6 @@ fi
 
 ################# Parse parameters #################
 shift
-
-# Constants
-CLIENT_DIR=client_repository
-TTV_SRC=ttv_source
-OUTPUT_DIR=output
-SYNC_TRACKER_DIR="${BASE_DIR}/config/.sync_tracker"
-EMAIL_LIST_FILE="${BASE_DIR}/config/email_list"
-
 SCRIPT_CODE=`cmn_mainBasename ${CODE_SCRIPT}`
 SCRIPT_CODE=`printf '%d\n' ${SCRIPT_CODE:0:3}`
 

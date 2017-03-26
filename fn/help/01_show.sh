@@ -60,7 +60,6 @@ function help_show () {
 
   HELP_MSG_STT=1
   local line=
-  PRI_IFS=$IFS
   export IFS=$'\n'
   while read line; do
     __process_line "${line}"

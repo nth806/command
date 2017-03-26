@@ -50,7 +50,6 @@ function sync_exec () {
   CI_MSG=
   MSG_STT=2
   local line=
-  PRI_IFS=$IFS
   export IFS=$'\n'
   while read line; do
     __process_line_msg "${line}"

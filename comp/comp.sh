@@ -21,7 +21,6 @@ function comp_get_email_list () {
     cmn_exitAbnormal "Does not exist email file <${EMAIL_LIST_FILE}>"
   fi
 
-  PRI_IFS=$IFS
   export IFS=$'\n'
   while read line; do
     __comp_add_email_list "${line}"
