@@ -20,7 +20,13 @@ elif [ "x${DES_DIR}" = "x-" ]; then
   SRC_DIR=${TTV_SRC}
   DES_DIR=${CLIENT_DIR}
 else
-  SRC_DIR=${2:-$CLIENT_DIR}
+  if [ "x${2}" != "x" ]; then
+    SRC_DIR="${2}"
+  elif [ -d $CLIENT_DIR ]; then
+    SRC_DIR=$CLIENT_DIR
+  else
+    SRC_DIR=.
+  fi
 fi
 
 cplist_check

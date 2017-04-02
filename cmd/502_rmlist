@@ -9,8 +9,10 @@ FILELIST_PATH=${OUTPUT_DIR}/rmlist_tmp.txt
 REMOVE_BASE_DIR="${1}"
 if [ "x${1}" != "x" ]; then
   REMOVE_BASE_DIR="${1}"
+elif [ -d $CLIENT_DIR ]; then
+  REMOVE_BASE_DIR=$CLIENT_DIR
 else
-  REMOVE_BASE_DIR="${CLIENT_DIR}"
+  REMOVE_BASE_DIR=.
 fi
 
 rmlist_check
