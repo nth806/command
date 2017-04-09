@@ -28,3 +28,31 @@ function git_statusBranch () {
 
   return -1
 }
+
+##
+# This function will remove status of update files from the output line when use
+# git commands
+##
+function git_removePrefixStatus () {
+  local line="${1}"
+
+  # Checking for added and modifided case
+  if [[ $line =~ ^[A|M][[:space:]]{1,}[^[:space:]] ]]; then
+    echo ${line:1}
+    return
+  fi
+
+  # Checking for deleted case
+  if [[ $line =~ ^D[[:space:]]{1,}[^[:space:]] ]]; then
+    echo ${line:1}
+    return 1
+  fi
+
+  # Checking for deleted case
+  if [[ $line =~ ^R[[:digit:]]{1,}[[:space:]]{1,}[^[:space:]] ]]; then
+    echo ${line#* }
+    return 2
+  fi
+
+  echo $line
+}
