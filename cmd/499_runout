@@ -8,17 +8,8 @@
 #   Parameters
 #     [1]: Script name, default sh(.sh)
 ##################################################################################
-RUNOUT_SCRIPT=
-if [ "x${1}" = "x" ]; then
-  RUNOUT_SCRIPT=cli
+if [ ! -f cli.sh ]; then
+  cmn_exitAbnormal "There is no script cli.sh"
 else
-  RUNOUT_SCRIPT="${1}"
-fi
-
-if [ -f "${RUNOUT_SCRIPT}" ]; then
-  . "${RUNOUT_SCRIPT}"
-elif [ -f "${RUNOUT_SCRIPT}.sh" ]; then
-  . "${RUNOUT_SCRIPT}.sh"
-else
-  cmn_exitAbnormal "There is no script ${RUNOUT_SCRIPT}(.sh)"
+  . cli.sh
 fi
