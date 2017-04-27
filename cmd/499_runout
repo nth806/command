@@ -11,5 +11,6 @@
 if [ ! -f cli.sh ]; then
   cmn_exitAbnormal "There is no script cli.sh"
 else
+  shift
   . cli.sh
 fi
