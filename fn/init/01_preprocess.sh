@@ -30,4 +30,8 @@ function init_prepocess () {
   # Make output folder (a temporary folder)
   mkdir -p "${BASE_DIR}/${OUTPUT_DIR}"
   touch "${BASE_DIR}/${OUTPUT_DIR}/.gitignore"
+
+  # Make cli directory
+  mkdir -p "${BASE_DIR}/cli"
+  touch "${BASE_DIR}/cli/.gitignore"
 }

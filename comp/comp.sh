@@ -48,10 +48,17 @@ function comp_check_config () {
      [ "x" = "x${VAGRANT_BOX_NAME}" ] || \
      [ "x" = "x${VAGRANT_GUESS_IP}" ] || \
      [ "x" = "x${VAGRANT_LOCAL_DOMAIN}" ]  || \
-     [ "x" = "x${TTV_REP_URL}" ]  || \
-     [ "x" = "x${GIT_CLIENT_BRANCH}" ] 
+     [ "x" = "x${TTV_REP_URL}" ]
   then
     cmn_exitAbnormal "Please configure your setting variables in 'config/constant.sh'"
+  fi
+
+  if [ ! "x${TOOL_VCS}" = "xgit" ]; then
+    return
+  fi
+
+  if [ "x" = "x${GIT_CLIENT_BRANCH}" ]; then
+    cmn_exitAbnormal "Please set value for GIT_CLIENT_BRANCH in 'config/constant.sh'"
   fi
 }
 

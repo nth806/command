@@ -20,7 +20,9 @@ TTV_SRC=ttv_source
 OUTPUT_DIR=output
 SYNC_TRACKER_DIR="${BASE_DIR}/config/.sync_tracker"
 EMAIL_LIST_FILE="${BASE_DIR}/config/email_list"
+
 CONNECT_GUESS_SSH=`echo ssh -p ${VAGRANT_SSH_PORT} -i vagrant/.vagrant/machines/default/virtualbox/private_key vagrant@127.0.0.1`
+USE_DEFAULT_FUNCTION='. `dirname ${BASH_SOURCE}`/../`basename ${BASH_SOURCE}`'
 
 # Initializing function
 for lc_file in `find _inc -type f -name '*.sh'`
@@ -57,9 +59,14 @@ then
   comp_help_wrong_despatch
 fi
 
-if [ -d "${BIN_DIR}/fn/${SCRIPTNAME}" ]
+lc_dir="${BIN_DIR}/fn/${SCRIPTNAME}"
+if [ -d "${lc_dir}" ]
 then
-  for lc_file in `find "${BIN_DIR}/fn/${SCRIPTNAME}" -type f -name '*.sh'`
+  if [ -d "${lc_dir}/${TOOL_VCS}" ]; then
+    lc_dir="${lc_dir}/${TOOL_VCS}"
+  fi
+
+  for lc_file in `find "${lc_dir}" -type f -name '*.sh'`
   do
     . "${lc_file}"
   done
