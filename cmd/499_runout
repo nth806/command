@@ -6,11 +6,10 @@
 #&    ${DESPATCH_SCRIPT} -
 #
 #   Parameters
-#     [1]: Script name, default sh(.sh)
+#     [1]: Parameters of outside script
 ##################################################################################
 if [ ! -f cli.sh ]; then
   cmn_exitAbnormal "There is no script cli.sh"
 else
-  shift
   . cli.sh
 fi
