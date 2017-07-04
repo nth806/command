@@ -32,7 +32,7 @@ done
 unset lc_file
 
 # Component functions
-for lc_file in `find comp -type f -name '*.sh'`
+for lc_file in `find comp/pjr -type f -name '*.sh'`
 do
   . $lc_file
 done
