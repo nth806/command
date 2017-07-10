@@ -66,7 +66,7 @@ then
     lc_dir="${lc_dir}/${TOOL_VCS}"
   fi
 
-  for lc_file in `find "${lc_dir}" -type f -name '*.sh'`
+  for lc_file in `find "${lc_dir}" -maxdepth 1 -type f -name '*.sh'`
   do
     . "${lc_file}"
   done

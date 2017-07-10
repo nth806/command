@@ -61,6 +61,14 @@ function __process_line_diff () {
       return 0
     fi
 
+    cd ${TTV_SRC}
+    git ls-files "${line}" --error-unmatch 1>/dev/null 2>/dev/null
+    if [ $? -ne 0 ] ; then
+      cd "${BASE_DIR}"
+      return 0
+    fi
+    cd "${BASE_DIR}"
+
     if [ -f "${TTV_SRC}/${line}" ]
     then
       echo "Add file ${line}"
@@ -84,6 +92,19 @@ function __process_line_diff () {
     if [ $? -eq 0 ] ; then
       return 0
     fi
+
+    git ls-files "${TTV_SRC}/${line}" --error-unmatch 1>/dev/null 2>/dev/null
+    if [ $? -ne 0 ] ; then
+      return 0
+    fi
+
+    cd ${CLIENT_DIR}
+    git ls-files "${line}" --error-unmatch 1>/dev/null 2>/dev/null
+    if [ $? -ne 0 ] ; then
+      cd "${BASE_DIR}"
+      return 0
+    fi
+    cd "${BASE_DIR}"
 
     echo "Update file ${line}"
     echo "+ ${line}" >> ${OUTPUT_TMP}
