@@ -8,7 +8,7 @@ BIN_DIR=`cd $(dirname "$0"); pwd`
 cd ${BIN_DIR}
 
 # Initializing function
-for lc_file in `find _inc/ -type f -name '*.sh'`
+for lc_file in `find inc/ -type f -name '*.sh'`
 do
   . $lc_file
 done
