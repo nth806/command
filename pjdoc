@@ -1,0 +1,26 @@
+#!/bin/bash
+
+if [ "x$1" = "x" ]
+then
+  echo 'Please input project name!'
+  exit 255
+fi
+
+PJ_NAME=$1
+
+PJ_DIR=/Users/hieunt/Documents/PJDoc
+PJ_PATH="${PJ_DIR}/${PJ_NAME}"
+PJ_NOTE_DIR=/Users/hieunt/Documents/PRV/track/t_04_pj/${PJ_NAME}
+
+if [ -e  ${PJ_PATH} ]
+then
+  echo 'Existed Project!'
+  exit 255
+fi
+
+PJ_SAMPLE=${PJ_DIR}/_SAMPLE
+
+# Copy project
+cp -r ${PJ_SAMPLE} ${PJ_PATH}
+mkdir -p ${PJ_NOTE_DIR}
+ln -s ${PJ_PATH}/__/*.txt ${PJ_NOTE_DIR}

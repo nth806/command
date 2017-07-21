@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Find a phrase in current directory
+
+cd $(pwd)
+
+if [ "x${1}" = "x" ]
+then
+  echo "Please input searched string"
+  exit 0
+fi
+
+find . -type f -exec grep ${1} {} \+
+
