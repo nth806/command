@@ -1,0 +1,22 @@
+#!/bin/bash
+APP_DIR="/Applications/DiffMerge.app"
+DIFF_DIR=~/Documents/PRV/track/compare
+
+if [ "x${1}" = "x" ]
+then
+  open $APP_DIR --args $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html
+elif [ "x${1}" = "x-" ]
+then
+  open $APP_DIR
+elif [ "x${1}" = "x--" ]
+then
+  open $APP_DIR --args $DIFF_DIR/CP_2.html $DIFF_DIR/CP_3.html
+elif [ "x${1}" = "x---" ]
+then
+  open $APP_DIR --args $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html $DIFF_DIR/CP_2.html
+else
+  if [ "x${2}" != "x" ] && [ -f "$2" ]
+  then
+    cat "$2" > $DIFF_DIR/CP_${1}.html
+  fi
+fi

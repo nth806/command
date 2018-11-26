@@ -1,0 +1,51 @@
+# Windows
+Thumbs.db
+
+# Linux
+*.swp
+
+# MAC
+.DS_Store
+
+# Common
+.Trashes
+.idea
+.gitattributes
+*.lock
+.svn
+_ide_helper.php
+
+# TTV ignore
+/client_repository/
+/output/
+
+# Eclipse
+.buildpath
+.project
+.settings/
+
+# Netbean
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Sublime
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-project
+*.sublime-workspace
+sftp-config.json
+
+# PhpStorm
+.phpstorm*
+
+# Vagrant
+vagrant/.vagrant
+
+# PHP
+vendor/
+

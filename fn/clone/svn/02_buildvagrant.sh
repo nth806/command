@@ -1,1 +1,0 @@
-eval $USE_DEFAULT_FUNCTION

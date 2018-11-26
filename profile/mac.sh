@@ -5,7 +5,7 @@
 ##
 # Check memory used
 ##
-function _free () {
+function ramFree () {
   top -l 1 | head -n 10 | grep PhysMem | sed -e $'s/, /\\\n        /g';
 }
 
