@@ -1,16 +1,46 @@
 #!/bin/bash
+################################################################################
+# Delete files/folders has specified name recursively.
+#
+# Usage:
+#&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
+#     Show this help.
+#
+#&  `echo_yellow "${EXEC_NAME} <name>" -en`
+#&    Show list files or folders named `echo_yellow "<name>" -en`.
+#
+#&  `echo_yellow "${EXEC_NAME} <name> -f" -en`
+#&    Delete files or folders named `echo_yellow "<name>" -en` recursively.
+################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+EXEC_NAME=`basename "$0"`
 
+# Include common functions of bash
+for lc_script in `find $BASE_DIR/include -maxdepth 2 -type f -name '*.sh'`
+do
+. $lc_script
+done
+
+# Main process
 if [ "x${1}" = "x" ]
 then
-  echo 'Please input file name which you would like remove recursively'
-  exit 255
+  echo_red 'Please input file name which you would like remove recursively.'
+  echo '--------'
+fi
+
+# Show help
+if [ "x${1}" = "x" ] || [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
+then
+  inc_helpComponent
+  cpnt_help "${BASH_SOURCE[0]}"
+  exit
 fi
 
 if [ "x${2}" = "x-f" ]
 then
   echo 'Remove files:'
   find . -name "${1}"
-  find . -name "${1}" | xargs -I "@@" rm -f @@
+  find . -name "${1}" | xargs -I "@@" rm -rf @@
   exit 0
 fi
 

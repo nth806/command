@@ -28,7 +28,10 @@ function __process_line() {
   # Start line
   if [ ${HELP_MSG_STT} -eq 3 ]
   then
-    if [ "x${line:0:1}" != 'x#' ]
+    if [ "x${line:0:2}" = 'x#!' ]
+    then
+      return
+    elif [ "x${line:0:1}" != 'x#' ]
     then
       HELP_MSG_STT=0
       return

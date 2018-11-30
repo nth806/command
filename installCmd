@@ -1,0 +1,44 @@
+#!/bin/bash
+################################################################################
+# Clone command utilities
+#
+# Description:
+#   We don't use submodule/superproject of git because of be difficult for
+#   managing. Therefore, we just define command utilities and clone theme.
+#
+#&    `printf '%s\\n    ' "${CMD_LIST[@]}" | sed '/^[[:space:]]*$/d'`
+################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+EXEC_NAME=`basename "$0"`
+
+CMD_LIST=(
+  git@gitlab.com:soartools/cmd_pcr.git
+  git@gitlab.com:soartools/cmd_pjr.git
+  git@gitlab.com:soartools/cmd_shopify.git
+  git@gitlab.com:soartools/cmd_shu.git
+)
+
+# Include common functions of bash
+for lc_script in `find $BASE_DIR/include -maxdepth 2 -type f -name '*.sh'`
+do
+. $lc_script
+done
+
+# Show help
+if [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
+then
+  inc_helpComponent
+  cpnt_help "${BASH_SOURCE[0]}"
+  exit
+fi
+
+cd "${BASE_DIR}"
+for lc in "${CMD_LIST[@]}"
+do
+  CMD_UTIL=`basename "${lc}"`
+  CMD_UTIL=${CMD_UTIL%.*}
+  if [ ! -d "${CMD_UTIL}/.git" ]
+  then
+    git clone "${lc}" "${CMD_UTIL}"
+  fi
+done
