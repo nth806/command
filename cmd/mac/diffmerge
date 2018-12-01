@@ -26,7 +26,6 @@ APP_DIR="/Applications/DiffMerge.app"
 DIFF_DIR=~/Documents/PRV/track/compare
 
 BASE_DIR=`cd $(dirname "$0"); pwd`
-EXEC_NAME=`basename "$0"`
 
 ##
 # Include common functions of bash
@@ -37,8 +36,7 @@ done
 
 if [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ] || [ "x${1}" = "xhelp" ]
 then
-  inc_helpComponent
-  cpnt_help "${BASH_SOURCE[0]}"
+  inc_itselfHelp
 elif [ "x${1}" = "x" ]
 then
   open $APP_DIR --args $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html
@@ -56,9 +54,6 @@ else
   then
     cat "$2" > $DIFF_DIR/CP_${1}.html
   else
-    echo_red "Please input the second parameter is a readable file!"
-    echo '--------'
-    inc_helpComponent
-    cpnt_help "${BASH_SOURCE[0]}"
+    inc_itselfHelp 'Please input the second parameter is a readable file!'
   fi
 fi

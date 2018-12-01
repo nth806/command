@@ -9,7 +9,6 @@
 #&    `printf '%s\\n    ' "${CMD_LIST[@]}" | sed '/^[[:space:]]*$/d'`
 ################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
-EXEC_NAME=`basename "$0"`
 
 CMD_LIST=(
   git@gitlab.com:soartools/cmd_pcr.git
@@ -27,11 +26,11 @@ done
 # Show help
 if [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
 then
-  inc_helpComponent
-  cpnt_help "${BASH_SOURCE[0]}"
-  exit
+  inc_itselfHelp
 fi
 
+##
+# Main process
 cd "${BASE_DIR}"
 for lc in "${CMD_LIST[@]}"
 do

@@ -1,9 +1,8 @@
 ################################################################################
 # Common help functionality
 ################################################################################
-
 # Parse function or variable on description if any
-function __process_function() {
+function __cpnt_help_process_function() {
   local line="${1}"
   local fn=`echo "${line}" | cut -d \@ -f 2`
 
@@ -22,7 +21,7 @@ function __process_function() {
 }
 
 # Process every line of file to get description for a command
-function __process_line() {
+function __cpnt_help_process_line() {
   local line=`cmn_trimSpaces "${1}"`
 
   # Start line
@@ -71,7 +70,7 @@ function __process_line() {
       line=`cmn_trimWith "'" "${line}"`
     fi
 
-    HELP_SHORT_DESCRIPTION=${HELP_SHORT_DESCRIPTION}${line}$'\n'
+    HELP_SHORT_DESCRIPTION+=${line}$'\n'
     return
   fi
 
@@ -94,15 +93,15 @@ function __process_line() {
     if [[ x${line} =~ x[[:space:]]*\@[[:alnum:]_]*\@ ]]
     then
       # Get content from function
-      line=`__process_function "${line}"`
+      line=`__cpnt_help_process_function "${line}"`
     fi
   fi
 
-  HELP_LONG_DESCRIPTION=${HELP_LONG_DESCRIPTION}${line}$'\n'
+  HELP_LONG_DESCRIPTION+=${line}$'\n'
 }
 
-# Main command
-################################################################################
+####
+# Parse help content at a file top
 function cpnt_help() {
   HELP_SHORT_DESCRIPTION=
   HELP_LONG_DESCRIPTION=
@@ -111,18 +110,18 @@ function cpnt_help() {
   local line=
   export IFS=$'\n'
   while read line; do
-    __process_line "${line}"
+    __cpnt_help_process_line "${line}"
 
     # Check exit
     if [ ${HELP_MSG_STT} -eq 0 ]
     then
       break
     fi
-  done < $1
+  done < "${1}"
 
   # Rollback bash settings
   export IFS=$PRI_IFS
-  unset -f __process_line __process_function
+  unset -f __cpnt_help_process_line __cpnt_help_process_function
 
   # Show help
   if [ "x${HELP_SHORT_DESCRIPTION}" = "x" ]
@@ -136,10 +135,72 @@ function cpnt_help() {
   then
     echo "${HELP_LONG_DESCRIPTION}"
   fi
+
+  unset HELP_SHORT_DESCRIPTION HELP_LONG_DESCRIPTION
 }
 
 ##
 # Show help with less
 function cpnt_helpLess() {
   cpnt_help "$@" | less -r
+}
+
+################################################################################
+function __cpnt_helpList_showLine() {
+  echo_yellow "`printf "${INDENT_SPACES}%-11s" "${1}"`" -ne
+  eval 'echo "$'${2}'"'
+  printf "\r\n"
+}
+
+####
+# Get help content from a list of files
+#
+# Parameters:
+#   [1] File list contains variable (COMMAND_ARRAY) which storage commands
+#     or folder which contains commands
+#   [2] Name of variable which storages description.
+##
+function cpnt_helpList() {
+  local dir="`pwd`"
+  local name=
+  local help=
+
+  if [ -f "${1}" ]
+  then
+    # File contains command list
+    . "${1}"
+    cd "`dirname $1`"
+
+    help+='Usage: '"${EXEC_NAME} <command> [<args>]"$'\n'
+    help+=$'\n'
+    help+='List of commands:'$'\n'
+
+    for name in "${COMMAND_ARRAY[@]}"
+    do
+      . "${name}/run.sh"
+
+      help+=`__cpnt_helpList_showLine ${name} ${2}`
+    done
+
+    help+=$'\n'
+    help+='For detailed usage of command, please type:'$'\n'
+    help+="  ${EXEC_NAME} help <command>"$'\n'
+  elif [ -d "${1}" ]
+  then
+    # Folder contains commands
+    cd "${1}"
+
+    for name in `find . -type f -name '*.sh'`
+    do
+      . "${name}"
+
+      name=`basename "${name}"`
+      name=${name%.sh}
+
+      help+=`__cpnt_helpList_showLine ${name} ${2}`
+    done
+  fi
+
+  cd "${dir}"
+  echo "${help}"
 }

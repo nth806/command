@@ -1,6 +1,8 @@
 ################################################################################
 # Include utilities
 ################################################################################
+
+# Include help component
 function inc_helpComponent() {
   local lc_script
 
@@ -8,9 +10,18 @@ function inc_helpComponent() {
   do
     . $lc_script
   done
+}
 
-  if [ -f help.sh ]
+# Show help content written on itself (unless this file)
+function inc_itselfHelp() {
+  if [ "x${1}" != 'x' ]
   then
-    . help.sh
+    echo_red "$1"
+    echo '----------------'$'\n'
   fi
+
+  inc_helpComponent
+  cpnt_help "${BASH_SOURCE[1]}"
+
+  exit
 }
