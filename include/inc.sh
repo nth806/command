@@ -16,8 +16,7 @@ function inc_helpComponent() {
 function inc_itselfHelp() {
   if [ "x${1}" != 'x' ]
   then
-    echo_red "${1}"
-    echo '----------------'$'\n'
+    echo_errorParam "${1}"
   fi
 
   inc_helpComponent
@@ -30,8 +29,7 @@ function inc_itselfHelp() {
 function inc_fileHelp() {
   if [ "x${2}" != 'x' ]
   then
-    echo_red "${2}"
-    echo '----------------'$'\n'
+    echo_errorParam "${2}"
   fi
 
   inc_helpComponent
