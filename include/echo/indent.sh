@@ -32,3 +32,8 @@ function echo_3MInd() {
 function echo_4MInd() {
   echo -e "${1}" | sed 's/^/'"${INDENT_SPACES}${INDENT_SPACES}${INDENT_SPACES}${INDENT_SPACES}"'/'
 }
+
+# echo custom indent for multilines
+function echo_CMInd() {
+  echo -e "${1}" | sed 's/^/'"${2}"'/'
+}

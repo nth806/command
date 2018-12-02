@@ -3,7 +3,8 @@
 # Git utility
 #
 # List support commands:
-#&`cpnt_helpList "${BASE_DIR}/component/gtu" CMD_DESC`
+#   @cpnt_helpList@ "${BASE_DIR}/component/gtu" CMD_DESC
+#
 # Help usage:
 #&  `echo_yellow "${EXEC_NAME} [help|-h|--help]" -en`
 #     Show this help.
@@ -39,10 +40,8 @@ then
     inc_itselfHelp 'There is no command `'${2}'`.';
   fi
 
-  inc_helpComponent
   CMD_NAME=${2}
-  cpnt_help "${GTU_DIR}/${2}.sh"
-  exit
+  inc_fileHelp "${GTU_DIR}/${2}.sh"
 fi
 
 if [ ! -f "${GTU_DIR}/${1}.sh" ]

@@ -6,18 +6,23 @@ function __cpnt_help_process_function() {
   local line="${1}"
   local fn=`echo "${line}" | cut -d \@ -f 2`
 
-  cmn_functionExists $fn
-  if [ $? -ne 0 ]; then
+  if ! cmn_functionExists ${fn}
+  then
     echo "${line}"
     return
   fi
 
-  local space=`echo "${line}" | cut -d \@ -f 1`
-  local ol
-  for ol in `${fn}`
-  do
-    echo "${space}${ol}"
-  done
+  local ind=`echo "${line}" | cut -d \@ -f 1`
+  local prs=`echo "${line}" | cut -d \@ -f 3`
+  local cmd=`echo ${fn} ${prs}`
+  local ret=`eval "${cmd}"`
+
+  #if [[ "${ret: -1}" =~ $'\r' ]] || [[ "${ret: -1}" =~ $'\n' ]]
+  #then
+  #  ret=`echo "${ret}" | sed '$ d'`
+  #fi
+
+  echo_CMInd "${ret}" "${ind}"
 }
 
 # Process every line of file to get description for a command
@@ -108,7 +113,7 @@ function cpnt_help() {
 
   HELP_MSG_STT=3
   local line=
-  export IFS=$'\n'
+  IFS=$'\n'
   while read line; do
     __cpnt_help_process_line "${line}"
 
@@ -120,7 +125,7 @@ function cpnt_help() {
   done < "${1}"
 
   # Rollback bash settings
-  export IFS=$PRI_IFS
+  IFS=$PRI_IFS
   unset -f __cpnt_help_process_line __cpnt_help_process_function
 
   # Show help
@@ -147,9 +152,8 @@ function cpnt_helpLess() {
 
 ################################################################################
 function __cpnt_helpList_showLine() {
-  echo_yellow "`printf "${INDENT_SPACES}%-11s" "${1}"`" -ne
+  echo_yellow "`printf "%-11s" "${1}"`" -ne
   eval 'echo "$'${2}'"'
-  printf "\r\n"
 }
 
 ####
@@ -179,7 +183,7 @@ function cpnt_helpList() {
     do
       . "${name}/run.sh"
 
-      help+=`__cpnt_helpList_showLine ${name} ${2}`
+      help+="${INDENT_SPACES}"`__cpnt_helpList_showLine ${name} ${2}`$'\n'
     done
 
     help+=$'\n'
@@ -197,7 +201,7 @@ function cpnt_helpList() {
       name=`basename "${name}"`
       name=${name%.sh}
 
-      help+=`__cpnt_helpList_showLine ${name} ${2}`
+      help+=`__cpnt_helpList_showLine ${name} ${2}`$'\n'
     done
   fi
 
