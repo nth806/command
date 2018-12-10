@@ -69,3 +69,10 @@ function cmn_isStartWith () {
 
   return 1
 }
+
+function cmn_numMatch() {
+  local ret=0
+  printf -v ret '%d\n' `echo "${2}" | awk -F"${1}" '{print NF-1}'` 2> /dev/null
+
+  return $ret
+}

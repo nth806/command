@@ -29,15 +29,15 @@ function getPidbyPort () {
   ##
   if [ "x$1" = "x" ]
   then
-    #echo 'Please input port number!'
-    exit 255
+    echo 'Please input port number!'
+    return 255
   fi
 
   cmn_isPositiveNumber $1
   if [ $? -gt 0 ]
   then
-    #echo 'Please input port number which is positive integer!'
-    exit 255
+    echo 'Please input port number which is positive integer!'
+    return 255
   fi
 
   PORT=$1
@@ -46,8 +46,8 @@ function getPidbyPort () {
 
   if [ "x${TERM_OUT}" = "x" ]
   then
-    #echo "Port: ${PORT} is not listened"
-    exit 1
+    echo "Port ${PORT} is not listened"
+    return 1
   fi
 
   #echo ${TERM_OUT}

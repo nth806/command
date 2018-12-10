@@ -75,7 +75,8 @@ function __cpnt_help_process_line() {
       line=`cmn_trimWith "'" "${line}"`
     fi
 
-    HELP_SHORT_DESCRIPTION+=${line}$'\n'
+    line='echo "'"${line}"'"'
+    HELP_SHORT_DESCRIPTION+=`eval "${line}"`$'\n'
     return
   fi
 
@@ -152,7 +153,12 @@ function cpnt_helpLess() {
 
 ################################################################################
 function __cpnt_helpList_showLine() {
-  echo_yellow "`printf "%-11s" "${1}"`" -ne
+  if cmn_isPositiveNumber $1
+  then
+    echo -n "${1}. "
+  else
+    echo_yellow "`printf "%-11s" "${1}"`" -ne
+  fi
   eval 'echo "$'${2}'"'
 }
 
@@ -183,11 +189,11 @@ function cpnt_helpList() {
     do
       . "${name}/run.sh"
 
-      help+="${INDENT_SPACES}"`__cpnt_helpList_showLine ${name} ${2}`$'\n'
+      help+="${INDENT_SPACES}"`__cpnt_helpList_showLine "${name}" "${2}"`$'\n'
     done
 
     help+=$'\n'
-    help+='For detailed usage of command, please type:'$'\n'
+    help+='For detailed usage of a command, please type:'$'\n'
     help+="  ${EXEC_NAME} help <command>"$'\n'
   elif [ -d "${1}" ]
   then
@@ -201,7 +207,12 @@ function cpnt_helpList() {
       name=`basename "${name}"`
       name=${name%.sh}
 
-      help+=`__cpnt_helpList_showLine ${name} ${2}`$'\n'
+      if cmn_isPositiveNumber ${name:0:1}
+      then
+        name=${name:0:1}
+      fi
+
+      help+=`__cpnt_helpList_showLine "${name}" "${2}"`$'\n'
     done
   fi
 

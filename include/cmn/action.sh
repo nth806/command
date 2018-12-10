@@ -3,23 +3,23 @@
 ################################################################################
 function cmn_exitNormal () {
   echo -en '\033[1;32m'
-  echo "Done"
+  [ "x${1}" = "x" ] && echo "Done" || echo "${1}"
   echo -en '\033[0m'
   exit 0
 }
 
 function cmn_exitAbnormal () {
   echo -en '\033[1;31m'
-  echo "${1}"
+  [ "x${1}" != "x" ] &&  echo "${1}"
   echo "Failed!"
   echo -en '\033[0m'
   exit 255
 }
 
 function cmn_confirmProcess () {
-  echo_yellow "${1}" -n
+  echo_yellow "${1}"
   local l_input
-  read -p "  ${2}" l_input
+  read -p "${2}" l_input
   l_input=`cmn_toLower ${l_input}`
 
   if [ "xy" != "x${l_input}" ] && [ "xyes" != "x${l_input}" ]
