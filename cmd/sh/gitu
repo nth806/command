@@ -16,7 +16,7 @@ BASE_DIR=`cd $(dirname "$0"); pwd`
 GTU_DIR="${BASE_DIR}/component/gtu"
 
 # Include common functions of bash
-for lc_script in `find $BASE_DIR/include -maxdepth 2 -type f -name '*.sh'`
+for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
 do
 . $lc_script
 done

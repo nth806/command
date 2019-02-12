@@ -4,7 +4,7 @@
 #
 # Description:
 #   We don't use submodule/superproject of git because of be difficult for
-#   managing. Therefore, we just define command utilities and clone theme.
+#   managing. Therefore, we just define commands and clone theme.
 #
 #&    `printf '%s\\n    ' "${CMD_LIST[@]}" | sed '/^[[:space:]]*$/d'`
 ################################################################################
