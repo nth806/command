@@ -23,7 +23,7 @@
 #     Show this help.
 ################################################################################
 APP_DIR="/Applications/DiffMerge.app"
-DIFF_DIR=~/Documents/PRV/track/compare
+DIFF_DIR=~/OneDrive/track/compare
 
 BASE_DIR=`cd $(dirname "$0"); pwd`
 
