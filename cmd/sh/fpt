@@ -1,0 +1,9 @@
+#!/bin/bash
+
+if [ "x$1" == "x" ]
+then
+  echo please input your search text.
+  exit
+fi
+
+find . -type f -not -path './vendor/*' -not -path './public/*' -not -path './node_modules/*' -not -path './deploy/*' -not -path './.git/*' -not -path './storage/framework/views/*' -exec grep $2 "$1" {} \+

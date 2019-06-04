@@ -44,3 +44,8 @@ function pidOfPort() {
   #echo ${TERM_OUT}
   echo ${TERM_OUT} | cut -f2 -d" "
 }
+
+function chrome() {
+  open -a "Google Chrome" "${1}"
+}
+

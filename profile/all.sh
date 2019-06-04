@@ -75,7 +75,8 @@ function set_project_cd() {
     posfix_name=`echo $count`
   done
 }
-set_project_cd && unset -f set_project_cd
+set_project_cd
+#unset -f set_project_cd
 
 ##
 # Configure changing directory to default folders
