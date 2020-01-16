@@ -1,3 +1,3 @@
 #!/bin/bash
 
-php /c/PHP/phar/composer.phar "$@"
+php /c/PHP/phar/composer.phar "$@" -d `pwd` --ansi

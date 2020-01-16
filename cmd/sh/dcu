@@ -1,0 +1,69 @@
+#!/bin/bash
+################################################################################
+# Docker-compose utility command
+#
+# If the first argument is configured project, it will be working project.
+# In the other hand, the project directory will be checked back sequently to
+# find out working project.
+#
+# Usage:
+#&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
+#     Show this help.
+#
+#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] <docker-compose arguments>" -en`
+################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../.env
+
+# Include common functions of bash
+for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
+do
+. $lc_script
+done
+
+# Show help
+if [ "x${1}" = "x" ] || [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
+then
+  inc_itselfHelp
+fi
+
+# Go to working directory
+function gotoWorkDir() {
+  if [ -f $WORK_DIR/provision/docker-compose.yml ]
+  then
+    WORK_DIR=${WORK_DIR}/provision
+    cd ${WORK_DIR}
+
+    return
+  fi
+
+  cmn_numMatch '/' "$WORK_DIR"
+  if [ $? -le 2 ]
+  then
+     cmn_exitAbnormal "Could not find provision directory!"
+  fi
+
+  cd ..
+  WORK_DIR=`pwd`
+  gotoWorkDir
+}
+
+if [ "x${PROJECT_INDEXES[$1]}" != "x" ]
+then
+  WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}/provision
+  if [ ! -f $WORK_DIR/docker-compose.yml ]
+  then
+    cmn_exitAbnormal "${1} is not configured working project!"
+  fi
+
+  cd ${WORK_DIR}
+  shift
+else
+  WORK_DIR=`pwd`
+  if [ "x`dirname $WORK_DIR`" != "xprovision" ]
+  then
+    gotoWorkDir
+  fi
+fi
+
+docker-compose "$@"

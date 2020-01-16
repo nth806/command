@@ -1,0 +1,169 @@
+#!/bin/bash
+########################################################################################################################
+# Docker utility command
+#
+# If the first argument is configured project, it will be working project.
+# In the other hand, the project directory will be checked back sequently to
+# find out working project.
+#
+# Usage:
+#&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
+#     Show this help.
+#
+#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] i [<container>]" -en`
+#     Connect to <container> interactively: default container is set on .env of working directory.
+#
+#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] c [<container>] <command> [<command arguments>]" -en`
+#     Run sh commands in container: default container is set on .env of working directory.
+#
+#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] <docker arguments>" -en`
+########################################################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../.env
+
+# Include common functions of bash
+for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
+do
+. $lc_script
+done
+
+# Show help
+if [ "x${1}" = "x" ] || [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
+then
+  inc_itselfHelp
+fi
+
+# Get bash type
+M_OS=`uname | tr '[:upper:]' '[:lower:]'`
+
+# Get working directory
+function getWorkDir() {
+  if [ -f $WORK_DIR/provision/.env ]
+  then	
+    return
+  fi
+  
+  cmn_numMatch '/' "$WORK_DIR"
+  if [ $? -le 2 ]
+  then
+    WORK_DIR=
+
+    return 
+  fi
+
+  cd ..
+  WORK_DIR=`pwd`
+  getWorkDir
+}
+
+if [ "x${PROJECT_INDEXES[$1]}" != "x" ]
+then
+  WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
+  if [ ! -f $WORK_DIR/provision/.env ]
+  then
+    cmn_exitAbnormal "${1} is not configured working project!"
+  fi
+
+  shift
+else
+  WORK_DIR=`pwd`
+  getWorkDir
+fi
+
+if [ "x${WORK_DIR}" != "x" ]
+then
+  . $WORK_DIR/provision/.env
+  SERVICE_LIST=`cd $WORK_DIR/provision && docker-compose ps --services`
+else
+  SERVICE_LIST=
+fi
+
+CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
+if [ "x${1}" = "xi" ]
+then
+  shift
+  if [ "x${1}" != "x" ]
+  then
+    CONNECT_CONTAINER=$1
+  fi
+
+  if [ "x${CONNECT_CONTAINER}" = "x" ]
+  then
+    cmn_exitAbnormal "Please set service for interacting!"
+  fi
+
+  if [ "x${COMPOSE_PROJECT_NAME}" != "x" ]
+  then
+    cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
+    if [ $? -ne 0 ]
+    then
+      CONNECT_CONTAINER=${COMPOSE_PROJECT_NAME}_${CONNECT_CONTAINER}
+    fi
+  fi
+
+  if ! [[ $CONNECT_CONTAINER =~ _[0-9]*$ ]]
+  then
+    CONNECT_CONTAINER=${CONNECT_CONTAINER}_1
+  fi
+
+  if [ "x${M_OS:0:5}" = "xmingw" ]
+  then
+    winpty docker exec -it ${CONNECT_CONTAINER} bash
+  else
+    docker exec -it ${CONNECT_CONTAINER} bash
+  fi
+
+  exit
+elif [ "x${1}" = "xc" ]
+then
+  shift
+  if [ "x${1}" = "x" ]
+  then
+    if [ "x${CONNECT_CONTAINER}" = "x" ]
+    then
+      cmn_exitAbnormal "Please set container for running!"
+    fi
+
+    cmn_exitAbnormal "Please set command for running!"
+  fi
+
+  while IFS= read -r line; do
+    line=`echo $line`
+    if [ "x${1}" = "x${line}" ]
+    then
+      CONNECT_CONTAINER=${line}
+      shift
+
+      break
+    fi
+  done <<< "$SERVICE_LIST"
+
+  if [ "x${CONNECT_CONTAINER}" = "x" ]
+  then
+    cmn_exitAbnormal "Please set container for running!"
+  fi
+
+  if [ "x${1}" = "x" ]
+  then
+    cmn_exitAbnormal "Please set command for running!"
+  fi
+
+  if [ "x${COMPOSE_PROJECT_NAME}" != "x" ]
+  then
+    cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
+    if [ $? -ne 0 ]
+    then
+      CONNECT_CONTAINER=${COMPOSE_PROJECT_NAME}_${CONNECT_CONTAINER}
+    fi
+  fi
+
+  if ! [[ $CONNECT_CONTAINER =~ _[0-9]*$ ]]
+  then
+    CONNECT_CONTAINER=${CONNECT_CONTAINER}_1
+  fi
+
+  docker exec "${CONNECT_CONTAINER}" bash -c "$*"
+  exit
+fi
+
+docker "$@"

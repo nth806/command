@@ -40,6 +40,7 @@ function set_project_cd() {
   local project dir subdir name subpath key
   declare -A subpath_list
   subpath_list['rp']=repo
+  subpath_list['pr']=provision
   subpath_list['fr']=front
   subpath_list['api']=api
   subpath_list['app']=app
@@ -81,7 +82,7 @@ set_project_cd
 ##
 # Configure changing directory to default folders
 ##
-function cd () {
+function cd() {
   if [ "x$1" != "x" ] && [ -d "$1" ]; then
     command cd "$@"
     return
