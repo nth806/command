@@ -1,0 +1,62 @@
+#!/bin/bash
+################################################################################
+# Git utility command
+#
+# Usage:
+#&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
+#     Show this help.
+#
+#&  `echo_yellow "${EXEC_NAME} <CONFIGURED_WORK_DIR> <git arguments>" -en`
+#     <CONFIGURED_WORK_DIR>: configured working project
+################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../.env
+
+# Include common functions of bash
+for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
+do
+. $lc_script
+done
+
+# Show help
+if [ "x${1}" = "x" ] || [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
+then
+  inc_itselfHelp
+fi
+
+ERROR_NONE_WORK="${1} is not configured working project!"
+if [ "x${PROJECT_INDEXES[$1]}" != "x" ]
+then
+  cmn_isStartWith / ${PROJECT_INDEXES[$1]}
+  if [ $? -eq 0 ]
+  then
+    WORK_DIR=${PROJECT_INDEXES[$1]}
+  else
+    WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
+  fi
+else
+  cmn_isStartWith pj $1
+  if [ $? -ne 0 ] || [ "x${PROJECT_LIST}" = "x" ] || [ ${#1} -gt 3 ]
+  then
+    cmn_exitAbnormal "${ERROR_NONE_WORK}"
+  fi
+
+  if [ ${#1} -eq 2 ]
+  then
+    WORK_DIR=$WORKSPACE/${PROJECT_LIST}
+  else
+    PROJECT_NUMBER=${1:2}
+    cmn_isPositiveNumber $PROJECT_NUMBER
+    if [ $? -ne 0 ] || [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" = "x" ]
+    then
+      cmn_exitAbnormal "${ERROR_NONE_WORK}"
+    fi
+
+    WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
+  fi
+fi
+
+shift
+cd $WORK_DIR
+
+git "$@"

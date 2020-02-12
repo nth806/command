@@ -54,7 +54,7 @@ function set_project_cd() {
 
   for project in "${PROJECT_LIST[@]}"
   do
-    dir=${CD_DEFAULT["ws"]}/$project
+    dir=${WORKSPACE}/$project
     if [ ! -d $dir ]; then
       echo There is no project $project, $dir directory doesn\'t exist!
       return 

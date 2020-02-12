@@ -50,7 +50,14 @@ function gotoWorkDir() {
 
 if [ "x${PROJECT_INDEXES[$1]}" != "x" ]
 then
-  WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}/provision
+  cmn_isStartWith / ${PROJECT_INDEXES[$1]}
+  if [ $? -eq 0 ]
+  then
+    WORK_DIR=${PROJECT_INDEXES[$1]}/provision
+  else
+    WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}/provision
+  fi
+
   if [ ! -f $WORK_DIR/docker-compose.yml ]
   then
     cmn_exitAbnormal "${1} is not configured working project!"
@@ -59,10 +66,39 @@ then
   cd ${WORK_DIR}
   shift
 else
-  WORK_DIR=`pwd`
-  if [ "x`dirname $WORK_DIR`" != "xprovision" ]
+  FOUND_PROJECT=1
+  cmn_isStartWith pj $1
+  if [ $? -eq 0 ] && [ "x${PROJECT_LIST}" != "x" ] && [ ${#1} -lt 4 ]
   then
-    gotoWorkDir
+    if [ ${#1} -eq 2 ]
+    then
+      WORK_DIR=$WORKSPACE/${PROJECT_LIST}
+    else
+      PROJECT_NUMBER=${1:2}
+      cmn_isPositiveNumber $PROJECT_NUMBER
+      if [ $? -eq 0 ] && [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" != "x" ]
+      then
+        WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
+      fi
+    fi
+
+    if [ -f $WORK_DIR/provision/docker-compose.yml ]
+    then
+      FOUND_PROJECT=0
+      WORK_DIR=$WORK_DIR/provision
+    fi
+  fi
+
+  if [ $FOUND_PROJECT -eq 0 ]
+  then
+    cd ${WORK_DIR}
+    shift
+  else
+    WORK_DIR=`pwd`
+    if [ "x`dirname $WORK_DIR`" != "xprovision" ]
+    then
+      gotoWorkDir
+    fi
   fi
 fi
 

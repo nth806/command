@@ -10,10 +10,10 @@
 #&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
 #     Show this help.
 #
-#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] i [<container>]" -en`
+#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] -i [<container>]" -en`
 #     Connect to <container> interactively: default container is set on .env of working directory.
 #
-#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] c [<container>] <command> [<command arguments>]" -en`
+#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] -c [<container>] <command> [<command arguments>]" -en`
 #     Run sh commands in container: default container is set on .env of working directory.
 #
 #&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] <docker arguments>" -en`
@@ -39,7 +39,7 @@ M_OS=`uname | tr '[:upper:]' '[:lower:]'`
 # Get working directory
 function getWorkDir() {
   if [ -f $WORK_DIR/provision/.env ]
-  then	
+  then
     return
   fi
   
@@ -58,7 +58,14 @@ function getWorkDir() {
 
 if [ "x${PROJECT_INDEXES[$1]}" != "x" ]
 then
-  WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
+  cmn_isStartWith / ${PROJECT_INDEXES[$1]}
+  if [ $? -eq 0 ]
+  then
+    WORK_DIR=${PROJECT_INDEXES[$1]}
+  else
+    WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
+  fi
+
   if [ ! -f $WORK_DIR/provision/.env ]
   then
     cmn_exitAbnormal "${1} is not configured working project!"
@@ -66,8 +73,35 @@ then
 
   shift
 else
-  WORK_DIR=`pwd`
-  getWorkDir
+  FOUND_PROJECT=1
+  cmn_isStartWith pj $1
+  if [ $? -eq 0 ] && [ "x${PROJECT_LIST}" != "x" ] && [ ${#1} -lt 4 ]
+  then
+    if [ ${#1} -eq 2 ]
+    then
+      WORK_DIR=$WORKSPACE/${PROJECT_LIST}
+    else
+      PROJECT_NUMBER=${1:2}
+      cmn_isPositiveNumber $PROJECT_NUMBER
+      if [ $? -eq 0 ] && [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" != "x" ]
+      then
+        WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
+      fi
+    fi
+
+    if [ -f $WORK_DIR/provision/.env ]
+    then
+      FOUND_PROJECT=0
+    fi
+  fi
+
+  if [ $FOUND_PROJECT -eq 0 ]
+  then
+    shift
+  else
+    WORK_DIR=`pwd`
+    getWorkDir
+  fi
 fi
 
 if [ "x${WORK_DIR}" != "x" ]
@@ -79,7 +113,7 @@ else
 fi
 
 CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
-if [ "x${1}" = "xi" ]
+if [ "x${1}" = "x-i" ]
 then
   shift
   if [ "x${1}" != "x" ]
@@ -114,7 +148,7 @@ then
   fi
 
   exit
-elif [ "x${1}" = "xc" ]
+elif [ "x${1}" = "x-c" ]
 then
   shift
   if [ "x${1}" = "x" ]
