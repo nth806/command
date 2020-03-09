@@ -104,12 +104,28 @@ else
   fi
 fi
 
+declare -A CUSTOM_ALIASES
 if [ "x${WORK_DIR}" != "x" ]
 then
   . $WORK_DIR/provision/.env
   SERVICE_LIST=`cd $WORK_DIR/provision && docker-compose ps --services`
 else
   SERVICE_LIST=
+fi
+
+TMP_VARS=
+TMP_ARG=
+if [ "x${1}" != "x" ] && [ "x${CUSTOM_ALIASES[$1]}" != "x" ]
+then
+  TMP_ARG="${1}"
+  shift
+
+  TMP_VARS="$@"
+  for arg do
+    shift
+  done
+
+  set -- ${CUSTOM_ALIASES[$TMP_ARG]} ${TMP_VARS}
 fi
 
 CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
