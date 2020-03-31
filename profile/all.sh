@@ -38,13 +38,6 @@ function set_project_cd() {
   local count=0
   local posfix_name=
   local project dir subdir name subpath key
-  declare -A subpath_list
-  subpath_list['rp']=repo
-  subpath_list['pr']=provision
-  subpath_list['fr']=front
-  subpath_list['api']=api
-  subpath_list['app']=app
-  subpath_list['po']=portal
 
   if [ "x${CD_DEFAULT['ws']}" = 'x' ]
   then
@@ -62,15 +55,6 @@ function set_project_cd() {
 
     name=pj$posfix_name
     CD_DEFAULT[$name]=$dir
-
-    for key in "${!subpath_list[@]}"
-    do
-      name=$key$posfix_name
-      subdir=$dir/${subpath_list[$key]}
-      if [ -d $subdir ]; then
-        CD_DEFAULT[$name]=$subdir
-      fi
-    done
 
     ((count+=1))
     posfix_name=`echo $count`
