@@ -187,7 +187,12 @@ function cpnt_helpList() {
 
     for name in "${COMMAND_ARRAY[@]}"
     do
-      . "${name}/run.sh"
+      if [ -f "${name}.sh" ]
+      then
+        . "${name}.sh"
+      else
+        . "${name}/run.sh"
+      fi
 
       help+="${INDENT_SPACES}"`__cpnt_helpList_showLine "${name}" "${2}"`$'\n'
     done

@@ -164,9 +164,15 @@ then
   fi
 
   exit
-elif [ "x${1}" = "x-c" ]
+elif [ "x${1}" = "x-c" ] || [ "x${1}" = "x-ci" ] || [ "x${1}" = "x-ic" ]
 then
+  _USE_INTERACTION=0
+  if [ "x${1}" == "x-c" ]
+  then
+    _USE_INTERACTION=1
+  fi
   shift
+
   if [ "x${1}" = "x" ]
   then
     if [ "x${CONNECT_CONTAINER}" = "x" ]
@@ -212,7 +218,23 @@ then
     CONNECT_CONTAINER=${CONNECT_CONTAINER}_1
   fi
 
-  docker exec "${CONNECT_CONTAINER}" bash -c "$*"
+  if [ "x${M_OS:0:5}" = "xmingw" ]
+  then
+    if [ $_USE_INTERACTION -eq 0 ]
+    then
+      winpty docker exec -it "${CONNECT_CONTAINER}" bash -c "$*"
+    else
+      docker exec "${CONNECT_CONTAINER}" bash -c "$*"
+    fi
+  else
+    if [ $_USE_INTERACTION -eq 0 ]
+    then
+      docker exec -it "${CONNECT_CONTAINER}" bash -c "$*"
+    else
+      docker exec "${CONNECT_CONTAINER}" bash -c "$*"
+    fi
+  fi
+
   exit
 fi
 

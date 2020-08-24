@@ -5,4 +5,5 @@ CMD_DESC="Show list of files is set assume unchanged"
 ################################################################################
 function _run() {
   git ls-files -v | grep '^[[:lower:]]'
+  return 0
 }

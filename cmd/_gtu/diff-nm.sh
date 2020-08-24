@@ -5,10 +5,10 @@ CMD_DESC="Show different files (name-only) of a commit (from its parent) or betw
 #&If commit_id isn't not specify, the `echo_yellow HEAD -ne` will be got.
 ################################################################################
 function _run() {
-  if [ "x${2}" = "x" ]
+  if [ "x${1}" = "x" ]
   then
-    git diff-tree -r --no-commit-id --name-only HEAD
+    git diff-tree -r --no-commit-id --name-only HEAD~ HEAD
   else
-    git ls-tree -r --no-commit-id --name-only "$@"
+    git diff-tree -r --no-commit-id --name-only "${1}~" "${1}"
   fi
 }

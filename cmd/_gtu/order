@@ -1,0 +1,10 @@
+# Show help for commands in this order
+COMMAND_ARRAY=(
+  diff-nm
+  diff-st
+  ls-tree
+  store
+  uc
+  uc-ls
+  help
+)

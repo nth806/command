@@ -17,21 +17,28 @@ function cmn_exitAbnormal () {
 }
 
 function cmn_confirmProcess () {
-  echo_yellow "${1}"
-  local l_input
-  read -p "${2}" l_input
-  l_input=`cmn_toLower ${l_input}`
-
-  if [ "xy" != "x${l_input}" ] && [ "xyes" != "x${l_input}" ]
+  if [ "x${2}" != "x" ]
   then
-    return 1
+    echo_yellow "${2} "
   fi
 
-  return 0
+  read -p "${1} " -n 1 -r
+  echo
+  if [[ $REPLY =~ ^[Yy]$ ]]
+  then
+    return 0
+  fi
+
+  if [[ $REPLY =~ ^[Nn]$ ]]
+  then
+    return 2
+  fi
+
+  return 1
 }
 
 function cmn_confirm4Exit () {
-  if ! cmn_confirmProcess "${1}" "Would you like to continue processing (default: no) [yes|y]: "
+  if ! cmn_confirmProcess "Would you like to continue processing (default: no) [yes|y]: " "${1}"
   then
     cmn_exitNormal
   fi

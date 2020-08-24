@@ -1,14 +1,18 @@
 #!/bin/bash
-################################################################################
+###################################################################################################
 # Git utility command
 #
 # Usage:
 #&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
 #     Show this help.
 #
-#&  `echo_yellow "${EXEC_NAME} <CONFIGURED_WORK_DIR> <git arguments>" -en`
-#     <CONFIGURED_WORK_DIR>: configured working project
-################################################################################
+#&  `echo_yellow "${EXEC_NAME} help" -en`
+#
+#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] <git arguments>" -en`
+#      <CONFIGURED_WORK_DIR>: configured working project
+#
+# If the shorcut command is set, it is executed, otherwise the git command is retrieved
+###################################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
 . $BASE_DIR/../../.env
 
@@ -17,6 +21,27 @@ for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
 do
 . $lc_script
 done
+
+# Go to working directory
+function gotoWorkDir() {
+  if [ -d $WORK_DIR/.git ]
+  then
+    WORK_DIR=${WORK_DIR}
+    cd ${WORK_DIR}
+
+    return
+  fi
+
+  cmn_numMatch '/' "$WORK_DIR"
+  if [ $? -le 2 ]
+  then
+     cmn_exitAbnormal "Could not find provision directory!"
+  fi
+
+  cd ..
+  WORK_DIR=`pwd`
+  gotoWorkDir
+}
 
 # Show help
 if [ "x${1}" = "x" ] || [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
@@ -34,29 +59,70 @@ then
   else
     WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
   fi
-else
-  cmn_isStartWith pj $1
-  if [ $? -ne 0 ] || [ "x${PROJECT_LIST}" = "x" ] || [ ${#1} -gt 3 ]
-  then
-    cmn_exitAbnormal "${ERROR_NONE_WORK}"
-  fi
 
-  if [ ${#1} -eq 2 ]
+  shift
+  cd ${WORK_DIR}
+else
+  FOUND_PROJECT=1
+  cmn_isStartWith pj $1
+  if [ $? -eq 0 ] && [ "x${PROJECT_LIST}" != "x" ] && [ ${#1} -lt 4 ]
   then
-    WORK_DIR=$WORKSPACE/${PROJECT_LIST}
-  else
-    PROJECT_NUMBER=${1:2}
-    cmn_isPositiveNumber $PROJECT_NUMBER
-    if [ $? -ne 0 ] || [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" = "x" ]
+    if [ ${#1} -eq 2 ]
     then
-      cmn_exitAbnormal "${ERROR_NONE_WORK}"
+      WORK_DIR=$WORKSPACE/${PROJECT_LIST}
+    else
+      PROJECT_NUMBER=${1:2}
+      cmn_isPositiveNumber $PROJECT_NUMBER
+      if [ $? -eq 0 ] && [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" != "x" ]
+      then
+        WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
+      fi
     fi
 
-    WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
+    if [ -d $WORK_DIR/.git ]
+    then
+      FOUND_PROJECT=0
+    fi
+  fi
+
+  if [ $FOUND_PROJECT -eq 0 ]
+  then
+    cd ${WORK_DIR}
+    shift
+  else
+    WORK_DIR=`pwd`
+    if [ "x`dirname $WORK_DIR`" != "xprovision" ]
+    then
+      gotoWorkDir
+    fi
   fi
 fi
 
-shift
-cd $WORK_DIR
+# Run the utility git command
+if [ -f "${BASE_DIR}/../_gtu/${1}.sh" ]
+then
+  BASE_DIR=`cd ${BASE_DIR}/../_gtu; pwd`
+  CMD_NAME=${1}
+  shift
+  
+  if [ "x${1}" == "x-h" ] || [ "x${1}" == "xhelp" ] || [ "x${1}" == "x--help" ]
+  then
+    cd $BASE_DIR
+    inc_helpComponent
+    cpnt_help "${CMD_NAME}.sh"
 
+    exit $?
+  fi
+
+  . "${BASE_DIR}/${CMD_NAME}.sh"
+  _run "$@"
+  if [ $? -ne 0 ]
+  then
+    echo_red 'Try to `'"${EXEC_NAME} ${CMD_NAME}"' help` for help'
+  fi
+  
+  exit
+fi
+
+# Run system git command
 git "$@"
