@@ -1,12 +1,10 @@
 #!/bin/bash
 
-if [ "x$1" == "x" ]
+TEXT_SEARCH=CRLF
+if [ "x$1" != "x" ]
 then
-  echo please input your search text.
-  exit
+  TEXT_SEARCH=`echo "${1}" | sed 's#'"'"'#'"'"'"'"'"'"'"'"'#g'`
 fi
-
-TEXT_SEARCH=`echo "${1}" | sed 's#'"'"'#'"'"'"'"'"'"'"'"'#g'`
 
 IGNORE_LIST=' '
 if [ -f .findignore ]
@@ -22,5 +20,5 @@ then
   IFS=$PRI_IFS
 fi
 
-COMMAND="find . -type f ! -path '*/.git/*' ! -path '*/node_modules/*' ${IGNORE_LIST} -exec grep $2 '${TEXT_SEARCH}' {} \+"
+COMMAND="find . -type f ! -path '*/.git/*' ! -path '*/node_modules/*' ${IGNORE_LIST} -exec file '{}' ';' | grep '${TEXT_SEARCH}'"
 eval $COMMAND
