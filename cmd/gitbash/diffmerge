@@ -42,7 +42,8 @@ then
   "$APP_EXE" $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html
 elif [ "x${1}" = "x-" ]
 then
-  "$APP_EXE"
+  shift
+  "$APP_EXE" "$@"
 elif [ "x${1}" = "x--" ]
 then
   "$APP_EXE" $DIFF_DIR/CP_2.html $DIFF_DIR/CP_3.html
