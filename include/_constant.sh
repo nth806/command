@@ -1,6 +1,12 @@
 PRI_IFS=$IFS
 INDENT_SPACES='  '
-EXEC_NAME=`basename "$0"`
+
+if [ "x$0" != 'x-bash' ]
+then
+  EXEC_NAME=`basename "$0"`
+else
+  EXEC_NAME=
+fi
 
 # COMMAND_DIR is declared in profile when start bash
 if [ "x${COMMAND_DIR}" = "x" ]

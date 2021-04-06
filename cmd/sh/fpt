@@ -1,5 +1,5 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+################################################################################
 if [ "x$1" == "x" ]
 then
   echo please input your search text.

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ################################################################################
 # Docker-compose utility command
 #
@@ -29,7 +29,10 @@ fi
 
 # Go to working directory
 function gotoWorkDir() {
-  if [ -f $WORK_DIR/provision/docker-compose.yml ]
+  if [ -f $WORK_DIR/docker-compose.yml ]
+  then
+    return
+  elif [ -f $WORK_DIR/provision/docker-compose.yml ]
   then
     WORK_DIR=${WORK_DIR}/provision
     cd ${WORK_DIR}
@@ -40,7 +43,7 @@ function gotoWorkDir() {
   cmn_numMatch '/' "$WORK_DIR"
   if [ $? -le 2 ]
   then
-     cmn_exitAbnormal "Could not find provision directory!"
+     cmn_exitAbnormal "Could not find docker-compose.yml or provision directory!"
   fi
 
   cd ..
@@ -53,12 +56,15 @@ then
   cmn_isStartWith / ${PROJECT_INDEXES[$1]}
   if [ $? -eq 0 ]
   then
-    WORK_DIR=${PROJECT_INDEXES[$1]}/provision
+    WORK_DIR=${PROJECT_INDEXES[$1]}
   else
-    WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}/provision
+    WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
   fi
 
-  if [ ! -f $WORK_DIR/docker-compose.yml ]
+  if [ -f $WORK_DIR/provision/docker-compose.yml ]
+  then
+    WORK_DIR=$WORK_DIR/provision
+  elif [ ! -f $WORK_DIR/docker-compose.yml ]
   then
     cmn_exitAbnormal "${1} is not configured working project!"
   fi
@@ -82,7 +88,10 @@ else
       fi
     fi
 
-    if [ -f $WORK_DIR/provision/docker-compose.yml ]
+    if [ -f $WORK_DIR/docker-compose.yml ]
+    then
+      FOUND_PROJECT=0
+    elif [ -f $WORK_DIR/provision/docker-compose.yml ]
     then
       FOUND_PROJECT=0
       WORK_DIR=$WORK_DIR/provision

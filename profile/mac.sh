@@ -23,9 +23,13 @@ function change2Hidden() {
   done  
 }
 
+function lsPort() {
+  netstat -an | grep "\.${1} " | grep -i LISTEN
+}
+
 ##
 # Find process id by port
-function pidOfPort() {
+function pidPort() {
   ##
   if [ "x$1" = "x" ]
   then
@@ -33,7 +37,7 @@ function pidOfPort() {
     return 255
   fi
 
-  local TERM_OUT=`sudo lsof -i:$1 | grep '(LISTEN)'`
+  local TERM_OUT=`sudo lsof -Pi:${1} | grep '(LISTEN)'`
 
   if [ "x${TERM_OUT}" = "x" ]
   then

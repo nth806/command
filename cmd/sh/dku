@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ########################################################################################################################
 # Docker utility command
 #
@@ -38,7 +38,7 @@ M_OS=`uname | tr '[:upper:]' '[:lower:]'`
 
 # Get working directory
 function getWorkDir() {
-  if [ -f $WORK_DIR/provision/.env ]
+  if [ -f $WORK_DIR/.env ] || [ -f $WORK_DIR/provision/.env ]
   then
     return
   fi
@@ -66,7 +66,7 @@ then
     WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
   fi
 
-  if [ ! -f $WORK_DIR/provision/.env ]
+  if [ ! -f $WORK_DIR/.env ] || [ ! -f $WORK_DIR/provision/.env ]
   then
     cmn_exitAbnormal "${1} is not configured working project!"
   fi
@@ -89,7 +89,7 @@ else
       fi
     fi
 
-    if [ -f $WORK_DIR/provision/.env ]
+    if [ -f $WORK_DIR/.env ] || [ -f $WORK_DIR/provision/.env ]
     then
       FOUND_PROJECT=0
     fi
@@ -107,8 +107,13 @@ fi
 declare -A CUSTOM_ALIASES
 if [ "x${WORK_DIR}" != "x" ]
 then
-  . $WORK_DIR/provision/.env
-  SERVICE_LIST=`cd $WORK_DIR/provision && docker-compose ps --services`
+  if [ -f $WORK_DIR/provision/.env ]
+  then
+    WORK_DIR=$WORK_DIR/provision
+  fi
+
+  . $WORK_DIR/.env
+  SERVICE_LIST=`cd $WORK_DIR && docker-compose ps --services`
 else
   SERVICE_LIST=
 fi
