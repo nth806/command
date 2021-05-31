@@ -28,7 +28,7 @@ do
 done
 
 # Show help
-if [ "x${1}" = "x" ] || [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
+if [ "x${1}" = 'x' ] || [ "x${1}" = 'x-h' ] || [ "x${1}" = 'x--help' ]
 then
   inc_itselfHelp
 fi
@@ -56,7 +56,7 @@ function getWorkDir() {
   getWorkDir
 }
 
-if [ "x${PROJECT_INDEXES[$1]}" != "x" ]
+if [ "x${PROJECT_INDEXES[$1]}" != 'x' ]
 then
   cmn_isStartWith / ${PROJECT_INDEXES[$1]}
   if [ $? -eq 0 ]
@@ -75,7 +75,7 @@ then
 else
   FOUND_PROJECT=1
   cmn_isStartWith pj $1
-  if [ $? -eq 0 ] && [ "x${PROJECT_LIST}" != "x" ] && [ ${#1} -lt 4 ]
+  if [ $? -eq 0 ] && [ "x${PROJECT_LIST}" != 'x' ] && [ ${#1} -lt 4 ]
   then
     if [ ${#1} -eq 2 ]
     then
@@ -105,7 +105,7 @@ else
 fi
 
 declare -A CUSTOM_ALIASES
-if [ "x${WORK_DIR}" != "x" ]
+if [ "x${WORK_DIR}" != 'x' ]
 then
   if [ -f $WORK_DIR/provision/.env ]
   then
@@ -113,6 +113,11 @@ then
   fi
 
   . $WORK_DIR/.env
+  if [ -f $WORK_DIR/.provision.env ]
+  then
+    . $WORK_DIR/.provision.env
+  fi
+
   SERVICE_LIST=`cd $WORK_DIR && docker-compose ps --services`
 else
   SERVICE_LIST=
@@ -120,7 +125,7 @@ fi
 
 TMP_VARS=
 TMP_ARG=
-if [ "x${1}" != "x" ] && [ "x${CUSTOM_ALIASES[$1]}" != "x" ]
+if [ "x${1}" != 'x' ] && [ "x${CUSTOM_ALIASES[$1]}" != 'x' ]
 then
   TMP_ARG="${1}"
   shift
@@ -134,20 +139,20 @@ then
 fi
 
 CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
-if [ "x${1}" = "x-i" ]
+if [ "x${1}" = 'x-i' ]
 then
   shift
-  if [ "x${1}" != "x" ]
+  if [ "x${1}" != 'x' ]
   then
     CONNECT_CONTAINER=$1
   fi
 
-  if [ "x${CONNECT_CONTAINER}" = "x" ]
+  if [ "x${CONNECT_CONTAINER}" = 'x' ]
   then
     cmn_exitAbnormal "Please set service for interacting!"
   fi
 
-  if [ "x${COMPOSE_PROJECT_NAME}" != "x" ]
+  if [ "x${COMPOSE_PROJECT_NAME}" != 'x' ]
   then
     cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
     if [ $? -ne 0 ]
@@ -161,7 +166,7 @@ then
     CONNECT_CONTAINER=${CONNECT_CONTAINER}_1
   fi
 
-  if [ "x${M_OS:0:5}" = "xmingw" ]
+  if [ "x${M_OS:0:5}" = 'xmingw' ]
   then
     winpty docker exec -it ${CONNECT_CONTAINER} bash
   else
@@ -169,7 +174,7 @@ then
   fi
 
   exit
-elif [ "x${1}" = "x-c" ] || [ "x${1}" = "x-ci" ] || [ "x${1}" = "x-ic" ]
+elif [ "x${1}" = 'x-c' ] || [ "x${1}" = 'x-ci' ] || [ "x${1}" = 'x-ic' ]
 then
   _USE_INTERACTION=0
   if [ "x${1}" == "x-c" ]
@@ -178,9 +183,9 @@ then
   fi
   shift
 
-  if [ "x${1}" = "x" ]
+  if [ "x${1}" = 'x' ]
   then
-    if [ "x${CONNECT_CONTAINER}" = "x" ]
+    if [ "x${CONNECT_CONTAINER}" = 'x' ]
     then
       cmn_exitAbnormal "Please set container for running!"
     fi
@@ -199,17 +204,17 @@ then
     fi
   done <<< "$SERVICE_LIST"
 
-  if [ "x${CONNECT_CONTAINER}" = "x" ]
+  if [ "x${CONNECT_CONTAINER}" = 'x' ]
   then
     cmn_exitAbnormal "Please set container for running!"
   fi
 
-  if [ "x${1}" = "x" ]
+  if [ "x${1}" = 'x' ]
   then
     cmn_exitAbnormal "Please set command for running!"
   fi
 
-  if [ "x${COMPOSE_PROJECT_NAME}" != "x" ]
+  if [ "x${COMPOSE_PROJECT_NAME}" != 'x' ]
   then
     cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
     if [ $? -ne 0 ]
@@ -223,7 +228,7 @@ then
     CONNECT_CONTAINER=${CONNECT_CONTAINER}_1
   fi
 
-  if [ "x${M_OS:0:5}" = "xmingw" ]
+  if [ "x${M_OS:0:5}" = 'xmingw' ]
   then
     if [ $_USE_INTERACTION -eq 0 ]
     then
