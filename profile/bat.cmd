@@ -5,7 +5,7 @@ SETLOCAL enabledelayedexpansion
 SET /A i=0
 FOR %%f IN (%PROJECT_LIST%) DO (
   SET /A i+=1
-  DOSKEY cd_pj!i!=cd /d %DOCS_DIR%\workspace\%%f
+  DOSKEY cd_pj!i!=cd /d %WORKSPACE%\%%f
 )
 ENDLOCAL
 SET "i="
