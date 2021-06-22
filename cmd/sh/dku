@@ -42,7 +42,7 @@ function getWorkDir() {
   then
     return
   fi
-  
+
   cmn_numMatch '/' "$WORK_DIR"
   if [ $? -le 2 ]
   then
@@ -135,7 +135,14 @@ then
     shift
   done
 
-  set -- ${CUSTOM_ALIASES[$TMP_ARG]} ${TMP_VARS}
+  TMP_QUOTE_AT_LAST=${CUSTOM_ALIASES[$TMP_ARG]: -1}
+  if [ "x${TMP_QUOTE_AT_LAST}" == "x'" ] && [ "x${TMP_VARS}" != 'x' ]
+  then
+    TMP_CUSTOM_ALIASES_QUOTE="${CUSTOM_ALIASES[$TMP_ARG]%?}"
+    set -- $TMP_CUSTOM_ALIASES_QUOTE ${TMP_VARS}${TMP_QUOTE_AT_LAST}
+  else
+    set -- ${CUSTOM_ALIASES[$TMP_ARG]} ${TMP_VARS}
+  fi
 fi
 
 CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
