@@ -15,12 +15,18 @@ then
   do
     line=`echo "${line}" | sed 's:/*$::'`
     if [ "x${line}" != "x" ]
-	then
-	  IGNORE_LIST="${IGNORE_LIST} ! -path '${line}' "
-	fi
+    then
+      if [ -e "${line}" ]
+      then
+        IGNORE_LIST="${IGNORE_LIST} ! -name '${line}'"
+      else
+        IGNORE_LIST="${IGNORE_LIST} ! -path '${line}' "
+      fi
+    fi
   done < .findignore
   IFS=$PRI_IFS
 fi
 
 COMMAND="find . -type f ! -path '*/.git/*' ! -path '*/node_modules/*' ${IGNORE_LIST} -exec grep $2 '${TEXT_SEARCH}' {} \+"
-eval $COMMAND
+eval $COMMAND 2>/dev/null
+
