@@ -145,7 +145,13 @@ then
   fi
 fi
 
+if [ "x${COMPOSE_PROJECT_NAME}" = 'x' ]
+then
+  COMPOSE_PROJECT_NAME=$( basename $WORK_DIR )
+fi
+
 CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
+CONTAINER_NAME_PART_DELIMITER=${CONTAINER_NAME_PART_DELIMITER:='_'}
 if [ "x${1}" = 'x-i' ]
 then
   shift
@@ -159,18 +165,15 @@ then
     cmn_exitAbnormal "Please set service for interacting!"
   fi
 
-  if [ "x${COMPOSE_PROJECT_NAME}" != 'x' ]
+  cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
+  if [ $? -ne 0 ]
   then
-    cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
-    if [ $? -ne 0 ]
-    then
-      CONNECT_CONTAINER=${COMPOSE_PROJECT_NAME}_${CONNECT_CONTAINER}
-    fi
+    CONNECT_CONTAINER=${COMPOSE_PROJECT_NAME}${CONTAINER_NAME_PART_DELIMITER}${CONNECT_CONTAINER}
   fi
 
-  if ! [[ $CONNECT_CONTAINER =~ _[0-9]*$ ]]
+  if ! [[ $CONNECT_CONTAINER =~ ${CONTAINER_NAME_PART_DELIMITER}[0-9]*$ ]]
   then
-    CONNECT_CONTAINER=${CONNECT_CONTAINER}_1
+    CONNECT_CONTAINER=${CONNECT_CONTAINER}${CONTAINER_NAME_PART_DELIMITER}1
   fi
 
   if [ "x${M_OS:0:5}" = 'xmingw' ]
@@ -221,18 +224,15 @@ then
     cmn_exitAbnormal "Please set command for running!"
   fi
 
-  if [ "x${COMPOSE_PROJECT_NAME}" != 'x' ]
+  cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
+  if [ $? -ne 0 ]
   then
-    cmn_isStartWith ${CONNECT_CONTAINER} ${COMPOSE_PROJECT_NAME}_
-    if [ $? -ne 0 ]
-    then
-      CONNECT_CONTAINER=${COMPOSE_PROJECT_NAME}_${CONNECT_CONTAINER}
-    fi
+    CONNECT_CONTAINER=${COMPOSE_PROJECT_NAME}${CONTAINER_NAME_PART_DELIMITER}${CONNECT_CONTAINER}
   fi
-
-  if ! [[ $CONNECT_CONTAINER =~ _[0-9]*$ ]]
+  
+  if ! [[ $CONNECT_CONTAINER =~ ${CONTAINER_NAME_PART_DELIMITER}[0-9]*$ ]]
   then
-    CONNECT_CONTAINER=${CONNECT_CONTAINER}_1
+    CONNECT_CONTAINER=${CONNECT_CONTAINER}${CONTAINER_NAME_PART_DELIMITER}1
   fi
 
   if [ "x${M_OS:0:5}" = 'xmingw' ]

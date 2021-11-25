@@ -111,4 +111,53 @@ else
   fi
 fi
 
-docker-compose "$@"
+if [ -f $WORK_DIR/.provision.env ]
+then
+  . $WORK_DIR/.provision.env
+fi
+
+# Use docker-compose to apply setting '-c, --context NAME'
+PARAM_SETTINGS=
+if [ "x${1}" = 'x-c' ]
+then
+  PARAM_SETTINGS='-T'
+  shift
+elif [ "x${1}" = 'x-cr' ]
+then
+  PARAM_SETTINGS='-T -u root'
+  shift
+elif [ "x${1}" = 'x-cu' ]
+then
+  PARAM_SETTINGS='-T -u'
+  shift
+
+  [ -z "$1" ] && cmn_exitAbnormal "Please specific container user!"
+  PARAM_SETTINGS="${PARAM_SETTINGS} ${1}"
+  shift
+fi
+
+if [ "x${PARAM_SETTINGS}" != 'x' ]
+then
+  SERVICE_LIST=`cd $WORK_DIR && docker-compose ps --services`
+  CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
+  if [ ! -z ${1} ]
+  then
+    while IFS= read -r line; do
+      line=`echo $line`
+      if [ "x${1}" = "x${line}" ]
+      then
+        CONNECT_CONTAINER=${line}
+        shift
+
+        break
+      fi
+    done <<< "$SERVICE_LIST"
+  fi
+
+  PARAM_SETTINGS="exec ${PARAM_SETTINGS} ${CONNECT_DEFAULT_CONTAINER}"
+else
+  PARAM_SETTINGS=${DCU_DEFAULT_OPTIONS:=}
+fi
+
+docker-compose $PARAM_SETTINGS "$@"
+

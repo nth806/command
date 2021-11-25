@@ -9,6 +9,13 @@ function _run() {
   then
     git diff-tree -r --no-commit-id --name-only HEAD~ HEAD
   else
-    git diff-tree -r --no-commit-id --name-only "${1}~" "${1}"
+    local commitBase="${1}~"
+    local commitCheck="${1}"
+    if [ "x${2}" != "x" ]
+    then
+      commitBase="${1}"
+      commitCheck="${2}"
+    fi
+    git diff-tree -r --no-commit-id --name-only "${commitBase}" "${commitCheck}"
   fi
 }
