@@ -20,6 +20,7 @@
 ########################################################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
 . $BASE_DIR/../../.env
+HAVE_WORKDIR=1
 
 # Include common functions of bash
 for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
@@ -38,8 +39,9 @@ M_OS=`uname | tr '[:upper:]' '[:lower:]'`
 
 # Get working directory
 function getWorkDir() {
-  if [ -f $WORK_DIR/.env ] || [ -f $WORK_DIR/provision/.env ]
+  if [ -f $WORK_DIR/.provision.env ] || [ -f $WORK_DIR/provision/.env ]
   then
+    HAVE_WORKDIR=0
     return
   fi
 
@@ -58,15 +60,14 @@ function getWorkDir() {
 
 if [ "x${PROJECT_INDEXES[$1]}" != 'x' ]
 then
-  cmn_isStartWith / ${PROJECT_INDEXES[$1]}
-  if [ $? -eq 0 ]
+  if cmn_isStartWith / ${PROJECT_INDEXES[$1]}
   then
     WORK_DIR=${PROJECT_INDEXES[$1]}
   else
     WORK_DIR=$WORKSPACE/${PROJECT_INDEXES[$1]}
   fi
 
-  if [ ! -f $WORK_DIR/.env ] || [ ! -f $WORK_DIR/provision/.env ]
+  if [ ! -f $WORK_DIR/.provision.env ] && [ ! -f $WORK_DIR/provision/.env ]
   then
     cmn_exitAbnormal "${1} is not configured working project!"
   fi
@@ -89,7 +90,7 @@ else
       fi
     fi
 
-    if [ -f $WORK_DIR/.env ] || [ -f $WORK_DIR/provision/.env ]
+    if [ -f $WORK_DIR/.provision.env ] || [ -f $WORK_DIR/provision/.env ]
     then
       FOUND_PROJECT=0
     fi
@@ -145,13 +146,31 @@ then
   fi
 fi
 
-if [ "x${COMPOSE_PROJECT_NAME}" = 'x' ]
+if [[ $HAVE_WORKDIR -eq 0 ]] && [ "x${COMPOSE_PROJECT_NAME}" = 'x' ]
 then
   COMPOSE_PROJECT_NAME=$( basename $WORK_DIR )
 fi
 
+# Get CONTAINER_NAME_PART_DELIMITER (make sure instead of using declared)
+if [ ! -z "${CONNECT_DEFAULT_CONTAINER}" ] && [[ $HAVE_WORKDIR -eq 0 ]]
+then
+  line=`cd $WORK_DIR && docker-compose ps $CONNECT_DEFAULT_CONTAINER 2>/dev/null | tail -n1 |\
+    grep $CONNECT_DEFAULT_CONTAINER`
+
+  if [ "x${line}" != 'x' ]
+  then
+    if [ `echo ${line#*-${CONNECT_DEFAULT_CONTAINER}} | cut -c1` == '-' ]
+    then
+      CONTAINER_NAME_PART_DELIMITER=-
+    elif [ `echo ${line#*_${CONNECT_DEFAULT_CONTAINER}} | cut -c1` == '_' ]
+    then
+      CONTAINER_NAME_PART_DELIMITER=_
+    fi
+  fi
+fi
+
 CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
-CONTAINER_NAME_PART_DELIMITER=${CONTAINER_NAME_PART_DELIMITER:='_'}
+CONTAINER_NAME_PART_DELIMITER=${CONTAINER_NAME_PART_DELIMITER:-'-'}
 if [ "x${1}" = 'x-i' ]
 then
   shift

@@ -61,7 +61,37 @@ function set_project_cd() {
   done
 }
 set_project_cd
-#unset -f set_project_cd
+unset -f set_project_cd
+
+##
+# List of projects set
+##
+function project_list() {
+  [ -z ${PROJECT_LIST} ] && return
+
+  local pj
+  local i=0
+  local idx=
+  for pj in "${PROJECT_LIST[@]}"
+  do
+    [ $i -eq 0 ] && idx=' ' || idx=$i
+    echo '  pj'$idx': '$pj
+    i=$((i+1))
+  done
+}
+
+##
+# List of indexes of project
+##
+function project_indexes() {
+  local i
+  local idx
+  for i in "${!PROJECT_INDEXES[@]}"
+  do
+    idx=`printf %8s ${i}`
+    echo "  ${idx}: "${PROJECT_INDEXES[$i]}
+  done
+}
 
 ##
 # Configure changing directory to default folders
@@ -85,4 +115,17 @@ function cd() {
   fi
 
   command cd "$@"
+}
+
+##
+# List of indexes of project
+##
+function cd_aliases() {
+  local i
+  local idx
+  for i in "${!CD_DEFAULT[@]}"
+  do
+    idx=`printf %8s ${i}`
+    echo "  ${idx}: "${CD_DEFAULT[$i]}
+  done
 }

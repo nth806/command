@@ -1,22 +1,74 @@
 #!/bin/bash
-################################################################################
-# Clone command utilities
+#########################################################################################
+# Install command utilities
 #
 # Description:
-#   We don't use submodule/superproject of git because of be difficult for
-#   managing. Therefore, we just define commands and clone theme.
+#&  Install this: put settings in `echo_yellow '~/.bash_profile' -n`
 #
-#&    `printf '%s\\n    ' "${CMD_LIST[@]}" | sed '/^[[:space:]]*$/d'`
-################################################################################
+#   Install utility commands:
+#     We don't use submodule/superproject of git because of be difficult for
+#     managing. Therefore, we just define commands and clone theme.
+#&      `printf '%s\\n      ' "${CMD_LIST[@]}" | sed '/^[[:space:]]*$/d'`
+#
+#&    Select option is command name to install or `echo_yellow -a -n` to intall all.
+#########################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
 
-CMD_LIST=(
-  git@gitlab.com:soartools/cmd_pcr.git
-  git@gitlab.com:soartools/cmd_pjr.git
-  git@gitlab.com:soartools/cmd_shopify.git
-  git@gitlab.com:soartools/cmd_shu.git
-)
+#-------------------------------------------------
+CMD_PREFIX=cmd_
+CMD_GIT_REPOSITORY='git@gitlab.com:soartools'
+CMD_LIST=( pcr pjr shopify shu )
 
+function installCommand () {
+  local UTIL_CMD=${CMD_PREFIX}${1}
+  if [ -d ${UTIL_CMD} ]
+  then
+    echo_yellow "${1} has already installed."
+  else
+    git clone ${CMD_GIT_REPOSITORY}/${UTIL_CMD}.git ${UTIL_CMD}
+  fi
+}
+
+#-------------------------------------------------
+_ENV=.env
+_BASH_PROFILE=~/.bash_profile
+
+WORKSPACE=
+function inputWorkspace () {
+  read -e -p "- Workspace: " WORKSPACE
+  if [ ! -z "${WORKSPACE}" ]
+  then
+    [ ! -d "${WORKSPACE}" ] && echo_yellow 'Workspace must be existed directory!' && return
+
+    ! cmn_isStartWith / "${WORKSPACE}" && echo_yellow 'Workspace must be absoluted path!' && return
+  fi
+}
+
+declare -A PROJECT_INDEXES
+PROJECT_LIST=()
+PROJECT_NAME=begin
+function inputProject () {
+  read -e -p "- Project name and its index: " PROJECT_NAME
+
+  [ -z "$PROJECT_NAME" ] && return
+
+  local pj_nm=`echo $PROJECT_NAME | cut -f1 -d" "`
+  local pj_idx=`echo $PROJECT_NAME | cut -f2 -d" "`
+  pj_nm=`cmn_trimSlash "${pj_nm}"`
+
+  [ ! -d "${pj_nm}" ] && echo_yellow "Project name must be a folder in workspace ${WORKSPACE}" && return
+  [[ "${PROJECT_LIST[*]}" =~ (^|[[:space:]])$pj_nm($|[[:space:]]) ]] &&\
+    echo_yellow "Project name has been inputted!" && return
+
+  [ -z "$pj_idx" ] && pj_idx=${pj_nm}
+  pj_idx=`cmn_trimSlash "${pj_idx}"`
+  [[ "${pj_idx}" =~ [^_\.a-zA-Z0-9\-] ]] && echo_yellow "Index is invalid" && return
+
+  PROJECT_INDEXES[${pj_nm}]="${pj_idx}"
+  PROJECT_LIST+=("${pj_nm}")
+}
+
+#-------------------------------------------------
 # Include common functions of bash
 for lc_script in `find $BASE_DIR/include -maxdepth 2 -type f -name '*.sh'`
 do
@@ -29,15 +81,129 @@ then
   inc_itselfHelp
 fi
 
-##
-# Main process
+#-------------------------------------------------
+#### Main process ####
 cd "${BASE_DIR}"
-for lc in "${CMD_LIST[@]}"
-do
-  CMD_UTIL=`basename "${lc}"`
-  CMD_UTIL=${CMD_UTIL%.*}
-  if [ ! -d "${CMD_UTIL}/.git" ]
+
+# Install this: put settings in ~/.bash_profile
+if [ -f $_ENV ]
+then
+  [ -z "$1" ] && echo_yellow 'The utility command has already been installed!' && exit
+else
+  # Do install
+  echo_blue 'Input absoluted path to your workspace (where you locate projects'"'"' source).'
+  while [ -z "${WORKSPACE}" ] || [ ! -d "${WORKSPACE}" ] || ! cmn_isStartWith / "${WORKSPACE}"
+  do
+    inputWorkspace
+  done
+
+  WORKSPACE=`cmn_rmTrailingWith / "${WORKSPACE}"`
+
+  cd "${WORKSPACE}"
+  echo_blue 'Input the the projects'"'"' name and their index in the workspace one by one.'
+  echo_blue 'Name or its index should only contain alphanumerics and _.- or let it empty to continue.'
+  echo_blue 'Input index following name separated by spaces or let it empty to set it as name.'
+  while [ ! -z "${PROJECT_NAME}" ]
+  do
+    inputProject
+  done
+  cd "${BASE_DIR}"
+
+  #--------------------------
+  # Add .env file
+  echo "WORKSPACE=${WORKSPACE}"$'\n' >> $_ENV
+
+  echo "PROJECT_LIST=( ${PROJECT_LIST[*]} )"$'\n' >> $_ENV
+
+  echo 'declare -A CD_DEFAULT' >> $_ENV
+  echo 'CD_DEFAULT["c"]="${COMMAND_DIR}"' >> $_ENV
+  echo 'CD_DEFAULT["ws"]="${WORKSPACE}"'$'\n' >> $_ENV
+
+  echo 'declare -A PROJECT_INDEXES' >> $_ENV
+  for i in "${!PROJECT_INDEXES[@]}"
+  do
+    echo "PROJECT_INDEXES[${PROJECT_INDEXES[${i}]}]=${i}" >> $_ENV
+  done
+
+  echo >> $_ENV
+  echo '# Absolute paths' >> $_ENV
+  echo 'PROJECT_INDEXES[cmd]=`cd $(dirname ${BASH_SOURCE[0]}) && pwd`'$'\n' >> $_ENV
+
+  echo '# Change directory by project index' >> $_ENV
+  for i in "${!PROJECT_INDEXES[@]}"
+  do
+    echo "CD_DEFAULT[${PROJECT_INDEXES[${i}]}]="'"${WORKSPACE}/'"${i}"'"' >> $_ENV
+  done
+
+  echo >> $_ENV
+  echo '# Configuration' >> $_ENV
+  echo 'CONTAINER_NAME_PART_DELIMITER=-' >> $_ENV
+
+  #--------------------------
+  # Add ~/.bash_profile file
+  [ -f ~/.profile ] && [ ! -f $_BASH_PROFILE ] && echo '. ~/.profile' > $_BASH_PROFILE
+
+  if [ ! -f $_BASH_PROFILE ] || ! grep -q '^COMMAND_DIR=' $_BASH_PROFILE
   then
-    git clone "${lc}" "${CMD_UTIL}"
+    echo $'\n''#### Utility Command ####' >> $_BASH_PROFILE
+    echo "COMMAND_DIR=${WORK_DIR}" >> $_BASH_PROFILE
+    echo '. $COMMAND_DIR/'${_ENV}$'\n' >> $_BASH_PROFILE
+
+    echo '# System variables' >> $_BASH_PROFILE
+    echo 'M_OS=`uname | tr '"'[:upper:]' '[:lower:]'"'`' >> $_BASH_PROFILE
+    echo 'if [ "x${M_OS:0:5}" = '"'xmingw'"' ]' >> $_BASH_PROFILE
+    echo 'then' >> $_BASH_PROFILE
+    echo '  M_OS=gitbash' >> $_BASH_PROFILE
+    echo 'fi'$'\n' >> $_BASH_PROFILE
+
+    echo '# Utility commands' >> $_BASH_PROFILE
+    echo 'if [ -d $COMMAND_DIR/include ]; then' >> $_BASH_PROFILE
+    echo '  for lc_script in `find $COMMAND_DIR/include -type f -name '"'*sh'"'`' >> $_BASH_PROFILE
+    echo '  do' >> $_BASH_PROFILE
+    echo '    . $lc_script' >> $_BASH_PROFILE
+    echo '  done'$'\n' >> $_BASH_PROFILE
+
+    echo '  # Profile for OS' >> $_BASH_PROFILE
+    echo '  . $COMMAND_DIR/profile/${M_OS}.sh'$'\n' >> $_BASH_PROFILE
+
+    echo '  for lc_dir in `find $COMMAND_DIR -type d -name '"'cmd_*'"'`' >> $_BASH_PROFILE
+    echo '  do' >> $_BASH_PROFILE
+    echo '    lc_basename=`basename $lc_dir`' >> $_BASH_PROFILE
+    echo '    lc_basename=${lc_basename#cmd_}' >> $_BASH_PROFILE
+    echo '    if [ -x ${lc_dir}/${lc_basename} ]' >> $_BASH_PROFILE
+    echo '    then' >> $_BASH_PROFILE
+    echo '      alias ${lc_basename}="${lc_dir}/${lc_basename}"' >> $_BASH_PROFILE
+    echo '    fi' >> $_BASH_PROFILE
+    echo '  done' >> $_BASH_PROFILE
+    echo 'else' >> $_BASH_PROFILE
+    echo '  echo '"'"'There is no path for common functions!'"'" >> $_BASH_PROFILE
+    echo 'fi'$'\n' >> $_BASH_PROFILE
+
+    echo '# Common services declaration' >> $_BASH_PROFILE
+    echo 'for lc_script in `find ~/.cmd -type f -name '"'*.sh'"'`' >> $_BASH_PROFILE
+    echo 'do' >> $_BASH_PROFILE
+    echo '  . $lc_script' >> $_BASH_PROFILE
+    echo 'done'$'\n' >> $_BASH_PROFILE
+
+    echo 'PATH=$PATH:$COMMAND_DIR/cmd/sh:$COMMAND_DIR/cmd/${M_OS}/:'$'\n' >> $_BASH_PROFILE
+
+    echo 'unset lc_script lc_dir lc_basename' >> $_BASH_PROFILE
+    echo 'export PATH' >> $_BASH_PROFILE
   fi
-done
+fi
+
+# Install utility commands
+[ -z "$1" ] && exit
+if [ "x${1}" = 'x-a' ]
+then
+  for lc in "${CMD_LIST[@]}"
+  do
+    installCommand ${lc}
+  done
+
+  exit
+fi
+
+[[ "${CMD_LIST[*]}" =~ (^|[[:space:]])$1($|[[:space:]]) ]] || cmn_exitAbnormal 'Invalid command!'
+
+installCommand $1
