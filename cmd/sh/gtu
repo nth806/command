@@ -104,7 +104,7 @@ then
   BASE_DIR=`cd ${BASE_DIR}/../_gtu; pwd`
   CMD_NAME=${1}
   shift
-  
+
   if [ "x${1}" == "x-h" ] || [ "x${1}" == "xhelp" ] || [ "x${1}" == "x--help" ]
   then
     cd $BASE_DIR
@@ -120,7 +120,7 @@ then
   then
     echo_red 'Try to `'"${EXEC_NAME} ${CMD_NAME}"' help` for help'
   fi
-  
+
   exit
 fi
 

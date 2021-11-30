@@ -51,6 +51,7 @@ function _copyFile()
 }
 
 function _run() {
+  local lfile
   if [ ! -d $_STORE_TMP_DIR ]
   then
     mkdir -p $_STORE_TMP_DIR
@@ -118,7 +119,6 @@ function _run() {
     cmn_exitNormal 'Apply storaged files successfully.'
   fi
 
-  local lcommit='HEAD'
   _STORE_COMMAND=store
   cmn_isEmptyFolder $_STORE_TMP_DIR
   if [ $? -ne 0 ]
@@ -132,18 +132,38 @@ function _run() {
     mkdir -p $_STORE_TMP_DIR
   fi
 
-  if [ "x${1}" != "x" ]
+  IFS=$'\n'
+  if [ "x${1}" = "x" ]
   then
-    lcommit=$1
+    # Copy changes files in working directory.
+    for lfile in `git status --short`
+    do
+      lfile=`cmn_trimSpaces ${lfile:2:255}`
+      if [ "x${lfile}" == "x" ]
+      then
+        continue
+      fi
+
+      _copyFile "${lfile}" . "${_STORE_TMP_DIR}"
+    done
+  elif [ "x${1}" = "x-f" ]
+  then
+    # Copy inputted files.
+    for lfile in "$@"
+    do
+        _copyFile "${lfile}" . "${_STORE_TMP_DIR}"
+    done
+  else
+    # Copy changed files at specified commit.
+    for lfile in `git diff-tree --no-commit-id --name-only -r ${1}~ ${1}`
+    do
+      if [ "x${lfile}" == "x" ]
+      then
+        continue
+      fi
+
+      _copyFile "${lfile}" . "${_STORE_TMP_DIR}"
+    done
   fi
-
-  for lfile in `git diff-tree --no-commit-id --name-only -r ${lcommit}~ ${lcommit}`
-  do
-    if [ "x${lfile}" == "x" ]
-    then
-      continue
-    fi
-
-    _copyFile $lfile . "${_STORE_TMP_DIR}"
-  done
+  IFS=$PRI_IFS
 }
