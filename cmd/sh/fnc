@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+################################################################################
+# grep -Rwl ${OPTIONS} '${TEXT_SEARCH}'
+OPTIONS=
+if [ "x${1:0:1}" = 'x-' ]
+then
+  OPTIONS="${1}"
+  shift
+fi
+
+if [ "x$1" = "x" ]
+then
+  echo please input your search text.
+  exit
+fi
+
+IFS=$'\n'
+last_line=
+for line in `fpt $OPTIONS "$@"`
+do
+  line=`echo "${line}" | cut -d'/' -f2- | cut -d':' -f1`
+  if [ "x${last_line}" != "x${line}" ]
+  then
+    last_line="${line}"
+    echo ./${line}
+  fi
+done
+IFS=$PRI_IFS
+

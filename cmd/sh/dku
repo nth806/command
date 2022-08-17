@@ -34,6 +34,27 @@ then
   inc_itselfHelp
 fi
 
+# Alias commands
+if [ "x${1}" = 'xvolume' ]
+then
+  shift
+
+  if [ "x${1}" = 'xprune' ]
+  then
+    echo_green 'Remove unamed volumes'
+	volumes=`docker volume ls -q | awk -F, 'length($0) == 64 { print }'`
+	if [ "x$volumes" != 'x' ]
+	then
+      docker volume rm $volumes
+    fi
+	
+	exit
+  fi
+
+  docker volume "$@"
+  exit
+fi
+
 # Get bash type
 M_OS=`uname | tr '[:upper:]' '[:lower:]'`
 
@@ -73,6 +94,7 @@ then
   fi
 
   shift
+  HAVE_WORKDIR=0
 else
   FOUND_PROJECT=1
   cmn_isStartWith pj $1
@@ -93,6 +115,7 @@ else
     if [ -f $WORK_DIR/.provision.env ] || [ -f $WORK_DIR/provision/.env ]
     then
       FOUND_PROJECT=0
+      HAVE_WORKDIR=0
     fi
   fi
 
