@@ -135,10 +135,6 @@ else
     echo "CD_DEFAULT[${PROJECT_INDEXES[${i}]}]="'"${WORKSPACE}/'"${i}"'"' >> $_ENV
   done
 
-  echo >> $_ENV
-  echo '# Configuration' >> $_ENV
-  echo 'CONTAINER_NAME_PART_DELIMITER=-' >> $_ENV
-
   #--------------------------
   # Add ~/.bash_profile file
   [ -f ~/.profile ] && [ ! -f $_BASH_PROFILE ] && echo '. ~/.profile' > $_BASH_PROFILE

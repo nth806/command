@@ -14,10 +14,10 @@ function inc_helpComponent() {
 
 # Show help content written on itself (unless this file)
 function inc_itselfHelp() {
-  if [ "x${1}" != 'x' ]
-  then
-    echo_errorParam "${1}"
-  fi
+  #if [ "x${1}" != 'x' ]
+  #then
+  #  echo_errorParam "${1}"
+  #fi
 
   inc_helpComponent
   cpnt_help "${BASH_SOURCE[1]}"
@@ -27,10 +27,10 @@ function inc_itselfHelp() {
 
 # Show help content written on a file (The first parameter)
 function inc_fileHelp() {
-  if [ "x${2}" != 'x' ]
-  then
-    echo_errorParam "${2}"
-  fi
+  #if [ "x${2}" != 'x' ]
+  #then
+  #  echo_errorParam "${2}"
+  #fi
 
   inc_helpComponent
   cpnt_help "${1}"

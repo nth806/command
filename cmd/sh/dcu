@@ -1,19 +1,36 @@
 #!/usr/bin/env bash
 ################################################################################
-# Docker-compose utility command
+# Docker compose utility command
 #
 # If the first argument is configured project, it will be working project.
-# In the other hand, the project directory will be checked back sequently to
-# find out working project.
+# On the contrary, the project directory will be checked back sequently to find out working project.
+#&$SHOW_WORK_DIR
+#&Usage:`showCustomScriptHelp`
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} -s" -en`
+#      Show container lists
+#&     `echo_yellow "docker compose ps --services" -en`
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} -i $CONNECT_DEFAULT_CONTAINER" -en`
+#&     Connect to <container> interactively: default container is $SHOW_DEFAULT_CONTAINER.
+#&     `echo_yellow "docker compose exec -it $CONNECT_DEFAULT_CONTAINER bash" -en`
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} -c $CONNECT_DEFAULT_CONTAINER <command> [<command arguments>]" -en`
+#&     Run (ba)sh commands inside <container>: default container is $SHOW_DEFAULT_CONTAINER.
+#&     `echo_yellow "docker compose exec $CONNECT_DEFAULT_CONTAINER"' bash -c "$*"' -en`
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} -ci $CONNECT_DEFAULT_CONTAINER <command> [<command arguments>]" -en`
+#&     Run (ba)sh commands in interactive mode inside container: default container is $SHOW_DEFAULT_CONTAINER.
+#&     `echo_yellow "docker compose exec -it $CONNECT_DEFAULT_CONTAINER"' bash -c "$*"' -en`
+#&$(echo_MInd "`showAliases`")
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} help" -en`
+#     Show this help
 #
-# Usage:
-#&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
-#     Show this help.
-#
-#&  `echo_yellow "${EXEC_NAME} [<CONFIGURED_WORK_DIR>] <docker-compose arguments>" -en`
+#&  Otherwise, `echo_blue "${EXEC_NAME}" -en` is shorcut of `echo_blue "docker compose" -en` run on working directory.
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} <docker compose arguments>" -en`:
+#&    `echo_cyan "${EXEC_NAME}${CONFIGURED_WORK_DIR} up -d" -en`
+#&    `echo_cyan "${EXEC_NAME}${CONFIGURED_WORK_DIR} down" -en`
+#&    `echo_cyan "${EXEC_NAME}${CONFIGURED_WORK_DIR} logs -f $CONNECT_DEFAULT_CONTAINER" -en`
 ################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
 . $BASE_DIR/../../.env
+WORK_DIR=
 
 # Include common functions of bash
 for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
@@ -21,21 +38,19 @@ do
 . $lc_script
 done
 
-# Show help
-if [ "x${1}" = "x" ] || [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
-then
-  inc_itselfHelp
-fi
+# Get bash type
+M_OS=`uname | tr '[:upper:]' '[:lower:]'`
 
+################################################################################
 # Go to working directory
 function gotoWorkDir() {
-  if [ -f $WORK_DIR/docker-compose.yml ]
+  if [ -f docker-compose.yml ]
   then
     return
-  elif [ -f $WORK_DIR/provision/docker-compose.yml ]
+  elif [ -f provision/docker-compose.yml ]
   then
     WORK_DIR=${WORK_DIR}/provision
-    cd ${WORK_DIR}
+    cd provision
 
     return
   fi
@@ -43,16 +58,29 @@ function gotoWorkDir() {
   cmn_numMatch '/' "$WORK_DIR"
   if [ $? -le 2 ]
   then
-     cmn_exitAbnormal "Could not find docker-compose.yml or provision directory!"
+    if [ "x${CURRENT_DIRECTORY}" = "x" ]
+    then
+      cmn_exitAbnormal "Could not find docker-compose.yml or provision directory!"
+    fi
+
+    cd $CURRENT_DIRECTORY
+    return 1
   fi
 
   cd ..
   WORK_DIR=`pwd`
   gotoWorkDir
+
+  return $?
 }
 
-if [ "x${PROJECT_INDEXES[$1]}" != "x" ]
+# Get WORK_DIR
+FOUND_PROJECT=1
+CURRENT_DIRECTORY=
+if [ "x$1" != "x" ] && [ "x${PROJECT_INDEXES[$1]}" != "x" ]
 then
+  FOUND_PROJECT=0
+  CONFIGURED_WORK_DIR=" $1"
   cmn_isStartWith / ${PROJECT_INDEXES[$1]}
   if [ $? -eq 0 ]
   then
@@ -71,93 +99,396 @@ then
 
   cd ${WORK_DIR}
   shift
-else
-  FOUND_PROJECT=1
-  cmn_isStartWith pj $1
-  if [ $? -eq 0 ] && [ "x${PROJECT_LIST}" != "x" ] && [ ${#1} -lt 4 ]
+elif [ "x$1" != "x" ] && [ "x${PROJECT_LIST}" != "x" ] && [ "x${1:0:2}" == "xpj" ] && [ ${#1} -lt 4 ]
+then
+  if [ ${#1} -eq 2 ]
   then
-    if [ ${#1} -eq 2 ]
+    WORK_DIR=$WORKSPACE/${PROJECT_LIST}
+  else
+    PROJECT_NUMBER=${1:2}
+    cmn_isPositiveNumber $PROJECT_NUMBER
+    if [ $? -eq 0 ] && [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" != "x" ]
     then
-      WORK_DIR=$WORKSPACE/${PROJECT_LIST}
-    else
-      PROJECT_NUMBER=${1:2}
-      cmn_isPositiveNumber $PROJECT_NUMBER
-      if [ $? -eq 0 ] && [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" != "x" ]
-      then
-        WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
-      fi
+      WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
     fi
+  fi
 
-    if [ -f $WORK_DIR/docker-compose.yml ]
-    then
-      FOUND_PROJECT=0
-    elif [ -f $WORK_DIR/provision/docker-compose.yml ]
-    then
-      FOUND_PROJECT=0
-      WORK_DIR=$WORK_DIR/provision
-    fi
+  if [ -f $WORK_DIR/docker-compose.yml ]
+  then
+    FOUND_PROJECT=0
+  elif [ -f $WORK_DIR/provision/docker-compose.yml ]
+  then
+    FOUND_PROJECT=0
+    WORK_DIR=$WORK_DIR/provision
+  else
+    WORK_DIR=
   fi
 
   if [ $FOUND_PROJECT -eq 0 ]
   then
     cd ${WORK_DIR}
+    CONFIGURED_WORK_DIR=" $1"
     shift
-  else
-    WORK_DIR=`pwd`
-    if [ "x`dirname $WORK_DIR`" != "xprovision" ]
-    then
-      gotoWorkDir
-    fi
   fi
 fi
 
-if [ -f $WORK_DIR/.provision.env ]
+if [ $FOUND_PROJECT -ne 0 ]
 then
-  . $WORK_DIR/.provision.env
-fi
-
-# Use docker-compose to apply setting '-c, --context NAME'
-PARAM_SETTINGS=
-if [ "x${1}" = 'x-c' ]
-then
-  PARAM_SETTINGS='exec'
-  shift
-elif [ "x${1}" = 'x-cr' ]
-then
-  PARAM_SETTINGS='exec -u root'
-  shift
-elif [ "x${1}" = 'x-cu' ]
-then
-  PARAM_SETTINGS='exec -u'
-  shift
-
-  [ -z "$1" ] && cmn_exitAbnormal "Please specific container user!"
-  PARAM_SETTINGS="${PARAM_SETTINGS} ${1}"
-  shift
-fi
-
-if [ "x${PARAM_SETTINGS}" != 'x' ]
-then
-  SERVICE_LIST=`cd $WORK_DIR && docker-compose ps --services`
-  CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
-  if [ ! -z ${1} ]
+  if [ "x$1" = "x" ] || [ "x$1" == "xhelp" ] || [ "x$1" == "x-" ]
   then
+    CURRENT_DIRECTORY=`pwd`
+  fi
+
+  # Try to change directory to docker compose folder
+  WORK_DIR=`pwd`
+  gotoWorkDir
+  if [ $? -ne 0 ]
+  then
+    WORK_DIR=
+  fi
+fi
+
+################################################################################
+# Get environment settings
+if [ -f .env ]
+then
+  . .env
+fi
+
+declare -A CUSTOM_ALIASES
+declare -A CUSTOM_ALIASES_GROUPS
+declare -A CUSTOM_ALIASES_DEFINATION
+if [ -f .provision.env ]
+then
+  . .provision.env
+fi
+
+################################################################################
+# Build command
+function getContainerList() {
+  docker compose ps --services
+}
+
+function getConnectContainer() {
+  SERVICE_LIST=`getContainerList`
+  if [ "`echo ${SERVICE_LIST}`" = '' ]; then
+    echo -n 'Please set `dcu {project?} up -d` to run this command.'
+    exit 1
+  fi
+
+  if [ "x${1}" = 'x' ]; then
+    CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
+
+    return 1
+  fi
+
+  if [ ! -z ${1} ]; then
     while IFS= read -r line; do
       line=`echo $line`
-      if [ "x${1}" = "x${line}" ]
-      then
+      if [ "x${1}" = "x${line}" ]; then
         CONNECT_CONTAINER=${line}
-        shift
 
-        break
+        return 0
       fi
     done <<< "$SERVICE_LIST"
   fi
 
-  PARAM_SETTINGS="${PARAM_SETTINGS} ${CONNECT_CONTAINER}"
-else
-  PARAM_SETTINGS=${DCU_DEFAULT_OPTIONS:=}
+  return 1
+}
+
+function exitInvalidContainer () {
+  echo_red "${1}" -n
+  echo ' is not a service container!'
+  echo "Container list (compose name: $COMPOSE_PROJECT_NAME): "${SERVICE_LIST}
+  exit 1
+}
+
+################################################################################
+# Run project custom scripts
+if [ "x${CUSTOM_PROJECT_SCRIPTS}" != "x" ] && [ "x$1" != "x" ] && [ -f "${CUSTOM_PROJECT_SCRIPTS}/${1}.sh" ]; then
+  EXEC_SCRIPT=${1}
+  shift
+  . "${CUSTOM_PROJECT_SCRIPTS}/${EXEC_SCRIPT}.sh"
+  exit
 fi
 
-docker-compose $PARAM_SETTINGS "$@"
+################################################################################
+# Show help
+function showCustomScriptHelp () {
+  if [ "x${CUSTOM_PROJECT_SCRIPTS}" = "x" ] || [ ! -d "${CUSTOM_PROJECT_SCRIPTS}" ]
+  then
+    return
+  fi
 
+  echo ' '
+  local lc_file lc_name lc_line
+  for lc_file in `find "${CUSTOM_PROJECT_SCRIPTS}" -type f -name '*.sh'`
+  do
+    lc_name=`basename $lc_file`
+    lc_name="${lc_name%.*}"
+    echo_green "  ${EXEC_NAME}${CONFIGURED_WORK_DIR} $lc_name [<parameters>]"
+    HELP_SHORT_DESCRIPTION=
+    HELP_LONG_DESCRIPTION=
+    HELP_MSG_STT=3
+    IFS=$'\n'
+    while read lc_line; do
+      __cpnt_help_process_line "${lc_line}"
+  
+      # Check exit
+      [ ${HELP_MSG_STT} -eq 0 ] && break
+    done < "${lc_file}"
+    IFS=$PRI_IFS
+
+    [ "x${HELP_SHORT_DESCRIPTION}" != "x" ] && echo -n "    ${HELP_SHORT_DESCRIPTION}"
+  done
+
+  echo ' '
+}
+
+function elementAlias () {
+  echo -n "  ${1}: "
+  echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} ${1}" -n
+  [ -v CUSTOM_ALIASES_DEFINATION[$1] ] && echo " : ${CUSTOM_ALIASES_DEFINATION[$1]}" || echo
+  echo_cyan "    ${EXEC_NAME}${CONFIGURED_WORK_DIR} ${CUSTOM_ALIASES[$1]}"
+}
+
+function showAliases() {
+  if [ ! ${#CUSTOM_ALIASES[@]} -gt 0 ]
+  then
+    return
+  fi
+
+  if [ "x$SHOW_ALIASES_NEWLINE" != "x" ]
+  then
+    echo ''
+  fi
+
+  echo_magenta "List of aliases:"
+  local lc_i
+
+  if [ ${#CUSTOM_ALIASES_GROUPS[@]} -eq 0 ]
+  then
+    for lc_i in "${!CUSTOM_ALIASES[@]}"
+    do
+      elementAlias ${lc_i}
+    done
+    return
+  fi
+
+  local lc_others=_o_
+  local lc_j lc_k lc_group_keys lc_arr_output lc_alias_keys
+  declare -a lc_group_keys lc_alias_keys
+  declare -A lc_arr_output
+  for lc_j in "${!CUSTOM_ALIASES_GROUPS[@]}"
+  do
+    lc_group_keys+=( $lc_j )
+    lc_arr_output[$lc_j]=
+  done
+
+  # Sort array keys, the longer one will appear first
+  readarray -t lc_group_keys < <(
+  for lc_i in "${lc_group_keys[@]}"; do
+    printf '%d\t%s\n' "${#lc_i}" "$lc_i"
+  done | sort -k 1,1nr -k 2 | cut -f 2- )
+
+  while IFS= read -rd '' lc_k; do
+    lc_alias_keys+=( "$lc_k" )
+  done < <(printf '%s\0' "${!CUSTOM_ALIASES[@]}" | sort -z)
+
+  # Others
+  lc_arr_output[$lc_others]=
+  for lc_i in "${lc_alias_keys[@]}"
+  do
+    lc_k=
+    for lc_j in "${lc_group_keys[@]}"
+    do
+      if cmn_isStartWith $lc_j $lc_i
+      then
+        lc_k=$lc_j
+        break
+      fi
+    done
+    [ "x$lc_k" == 'x' ] && lc_k=$lc_others
+
+    lc_arr_output[$lc_k]+="`elementAlias $lc_i`"
+  done
+
+  if [ ${#CUSTOM_ALIASES_ORDER[@]} -eq 0 ]
+  then
+    for lc_i in "${!lc_arr_output[@]}"
+    do
+      [ "x$lc_i" = "x$lc_others" ] && continue
+      echo_blue "  ${CUSTOM_ALIASES_GROUPS[$lc_i]}:"
+      echo "${lc_arr_output[$lc_i]}"
+    done
+  else
+    for lc_i in "${CUSTOM_ALIASES_ORDER[@]}"
+    do
+      echo_blue "  ${CUSTOM_ALIASES_GROUPS[$lc_i]}:"
+      echo "${lc_arr_output[$lc_i]}"
+    done
+  fi
+  if [ "x${lc_arr_output[$lc_others]}" != "x" ]
+  then
+    echo_blue "  Others:"
+    echo -n "${lc_arr_output[$lc_others]}"
+  fi
+}
+
+if [ "x${1}" = "x" ] || [ "x${1}" = "xhelp" ] || [ "x$1" == "x-" ]
+then
+  if [ "x${1}" = "xhelp" ]
+  then
+    shift
+  fi
+
+  if [ "x${CUSTOM_PROJECT_SCRIPTS}" != "x" ] && [ "x$1" != "x" ] && [ -f "${CUSTOM_PROJECT_SCRIPTS}/${1}.sh" ]; then
+    inc_fileHelp "${CUSTOM_PROJECT_SCRIPTS}/${1}.sh"
+  fi
+
+  if [ "x$1" != "x" ] && [ ${#CUSTOM_ALIASES[@]} -gt 0 ]
+  then
+    if [ "x$1" = "x-" ]
+    then
+      showAliases
+      exit
+    elif [ "x${CUSTOM_ALIASES[$1]}" != "x" ]
+    then
+      TMP_ARG="${1}"
+      shift
+
+      TMP_VARS="$@"
+      TMP_QUOTE_AT_LAST=${CUSTOM_ALIASES[$TMP_ARG]: -1}
+      if [ "x${TMP_QUOTE_AT_LAST}" == "x'" ] && [ "x${TMP_VARS}" != 'x' ]
+      then
+        TMP_CUSTOM_ALIASES_QUOTE="${CUSTOM_ALIASES[$TMP_ARG]%?}"
+        TMP_VARS="$TMP_CUSTOM_ALIASES_QUOTE ${TMP_VARS}${TMP_QUOTE_AT_LAST}"
+      else
+        TMP_VARS="${CUSTOM_ALIASES[$TMP_ARG]} ${TMP_VARS}"
+      fi
+      echo "Alias:"
+      echo_green "  ${EXEC_NAME}${CONFIGURED_WORK_DIR} ${TMP_ARG}" -n
+      [ $@ ] && echo_green " $@" -n
+      [ -v CUSTOM_ALIASES_DEFINATION[$TMP_ARG] ] && echo -n " (${CUSTOM_ALIASES_DEFINATION[$TMP_ARG]})"
+      echo ' is shorten of '
+      echo_yellow "    ${EXEC_NAME}${CONFIGURED_WORK_DIR} ${TMP_VARS}"
+      exit
+    fi
+  fi
+
+  if [ "x$CONNECT_DEFAULT_CONTAINER" = "x" ]
+  then
+    CONNECT_DEFAULT_CONTAINER='[<container>]'
+    SHOW_DEFAULT_CONTAINER='set on .env of working directory'
+  else
+    SHOW_DEFAULT_CONTAINER="$CONNECT_DEFAULT_CONTAINER"
+  fi
+
+  if [ "x$WORK_DIR" = 'x' ]
+  then
+    SHOW_WORK_DIR=
+  else
+    SHOW_WORK_DIR="
+Working directory: `echo_cyan $WORK_DIR -en`"
+  fi
+
+  SHOW_ALIASES_NEWLINE=true
+  inc_itselfHelp | less -r
+  exit
+fi
+
+################################################################################
+# Try to explain aliases
+if [ "x${1}" != 'x' ] && [ "x${1:0:1}" != 'x-' ] && [ "x${CUSTOM_ALIASES[$1]}" != 'x' ]
+then
+  TMP_ARG="${1}"
+  shift
+
+  TMP_VARS="$@"
+  for arg do
+    shift
+  done
+
+  TMP_QUOTE_AT_LAST=${CUSTOM_ALIASES[$TMP_ARG]: -1}
+  if [ "x${TMP_QUOTE_AT_LAST}" == "x'" ] && [ "x${TMP_VARS}" != 'x' ]
+  then
+    TMP_CUSTOM_ALIASES_QUOTE="${CUSTOM_ALIASES[$TMP_ARG]%?}"
+    set -- $TMP_CUSTOM_ALIASES_QUOTE ${TMP_VARS}${TMP_QUOTE_AT_LAST}
+  else
+    set -- ${CUSTOM_ALIASES[$TMP_ARG]} ${TMP_VARS}
+  fi
+
+  unset TMP_ARG TMP_VARS TMP_QUOTE_AT_LAST TMP_CUSTOM_ALIASES_QUOTE
+fi
+
+#################################################################
+#-s: Show container lists
+if [ "x${1}" = 'x-s' ]; then
+  getContainerList
+  exit
+fi
+
+#-i: Connect a container
+if [ "x${1}" = 'x-i' ]; then
+  shift
+  getConnectContainer ${1}
+
+  if [ "x${CONNECT_CONTAINER}" = 'x' ]; then
+    exitInvalidContainer ${1}
+  fi
+
+  if [ "x${M_OS:0:5}" = 'xmingw' ]
+  then
+    winpty compose exec -it ${CONNECT_CONTAINER} bash
+  else
+    docker compose exec -it ${CONNECT_CONTAINER} bash
+  fi
+
+  exit
+fi
+
+#################################################################
+#-c: Connect container and run bash command
+#-ci: Connect container and run bash command in interactive mode
+if [ "x${1}" = 'x-c' ] || [ "x${1}" = 'x-ci' ] || [ "x${1}" = 'x-ic' ]
+then
+  shift
+  _USE_INTERACTION=0
+  if [ "x${M_EXEC}" == "x-c" ]
+  then
+    _USE_INTERACTION=1
+  fi
+
+  if [ "x${1}" = 'x' ]; then
+    cmn_exitAbnormal "Please set bash command for running in $CONNECT_DEFAULT_CONTAINER container!"
+  fi
+
+  getConnectContainer "${1}"
+  if [ $? -eq 0 ]; then
+    shift
+  else
+    CONNECT_CONTAINER=$CONNECT_DEFAULT_CONTAINER
+  fi
+
+  if [ "x${1}" = 'x' ]; then
+    cmn_exitAbnormal "Please set bash command for running in $CONNECT_CONTAINER container!"
+  fi
+
+  if [ $_USE_INTERACTION -eq 0 ]
+  then
+    if [ "x${M_OS:0:5}" = 'xmingw' ]
+    then
+      winpty docker compose exec -it "${CONNECT_CONTAINER}" bash -c "$*"
+    else
+      docker compose exec -it "${CONNECT_CONTAINER}" bash -c "$*"
+    fi
+  else
+    docker compose exec "${CONNECT_CONTAINER}" bash -c "$*"
+  fi
+
+  exit
+fi
+
+#################################################################
+# Shortcut to "docker compose"
+docker compose "$@"
