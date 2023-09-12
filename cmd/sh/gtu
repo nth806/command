@@ -14,13 +14,8 @@
 # If the shorcut command is set, it is executed, otherwise the git command is retrieved
 ###################################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../include/src
 . $BASE_DIR/../../.env
-
-# Include common functions of bash
-for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
-do
-. $lc_script
-done
 
 # Go to working directory
 function gotoWorkDir() {
@@ -62,40 +57,6 @@ then
 
   shift
   cd ${WORK_DIR}
-else
-  FOUND_PROJECT=1
-  cmn_isStartWith pj $1
-  if [ $? -eq 0 ] && [ "x${PROJECT_LIST}" != "x" ] && [ ${#1} -lt 4 ]
-  then
-    if [ ${#1} -eq 2 ]
-    then
-      WORK_DIR=$WORKSPACE/${PROJECT_LIST}
-    else
-      PROJECT_NUMBER=${1:2}
-      cmn_isPositiveNumber $PROJECT_NUMBER
-      if [ $? -eq 0 ] && [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" != "x" ]
-      then
-        WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
-      fi
-    fi
-
-    if [ -d $WORK_DIR/.git ]
-    then
-      FOUND_PROJECT=0
-    fi
-  fi
-
-  if [ $FOUND_PROJECT -eq 0 ]
-  then
-    cd ${WORK_DIR}
-    shift
-  else
-    WORK_DIR=`pwd`
-    if [ "x`dirname $WORK_DIR`" != "xprovision" ]
-    then
-      gotoWorkDir
-    fi
-  fi
 fi
 
 # Run the utility git command

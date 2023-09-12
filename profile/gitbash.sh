@@ -1,6 +1,6 @@
 #######
 # Utility functions for windows 10
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/all.sh
+. $COMMAND_DIR/profile/all_$SHELL_NAME
 
 function lsPort() {
   netstat -ano | grep ":${1} " | grep -i LISTENING

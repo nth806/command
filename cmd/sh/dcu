@@ -19,8 +19,16 @@
 #&     Run (ba)sh commands in interactive mode inside container: default container is $SHOW_DEFAULT_CONTAINER.
 #&     `echo_yellow "docker compose exec -it $CONNECT_DEFAULT_CONTAINER"' bash -c "$*"' -en`
 #&$(echo_MInd "`showAliases`")
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR}" -en`
+#&    Start the Docker Compose for the${CONFIGURED_WORK_DIR} project if it has not started yet.
+#&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} ." -en`
+#&    The shorcut of `echo_cyan "${EXEC_NAME}${CONFIGURED_WORK_DIR} down" -en`
+#
 #&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} help" -en`
 #     Show this help
+#
+#&  `echo_green "${EXEC_NAME} -a" -en`
+#      Show running project lists
 #
 #&  Otherwise, `echo_blue "${EXEC_NAME}" -en` is shorcut of `echo_blue "docker compose" -en` run on working directory.
 #&  `echo_green "${EXEC_NAME}${CONFIGURED_WORK_DIR} <docker compose arguments>" -en`:
@@ -29,17 +37,37 @@
 #&    `echo_cyan "${EXEC_NAME}${CONFIGURED_WORK_DIR} logs -f $CONNECT_DEFAULT_CONTAINER" -en`
 ################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../include/src
+
 . $BASE_DIR/../../.env
 WORK_DIR=
 
-# Include common functions of bash
-for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
-do
-. $lc_script
-done
-
 # Get bash type
 M_OS=`uname | tr '[:upper:]' '[:lower:]'`
+
+#################################################################
+#-a: Show running project lists
+if [ "x${1}" = 'x-a' ]; then
+  for pj in "${!PROJECT_INDEXES[@]}"
+  do
+    pjPath="${PROJECT_INDEXES[$pj]}"
+    cmn_isStartWith / "$pjPath" || pjPath=$WORKSPACE/$pjPath
+    if [ -f "$pjPath/provision/docker-compose.yml" ]
+    then
+      pjPath="$pjPath/provision"
+    elif [ ! -f "$pjPath/docker-compose.yml" ]
+    then
+      continue
+    fi
+
+    if [[ `docker compose --project-directory $pjPath ps --services` ]]
+    then
+      idx=`printf %8s ${pj}`
+      echo "  ${idx}: "$pjPath
+    fi
+  done
+  exit
+fi
 
 ################################################################################
 # Go to working directory
@@ -99,37 +127,6 @@ then
 
   cd ${WORK_DIR}
   shift
-elif [ "x$1" != "x" ] && [ "x${PROJECT_LIST}" != "x" ] && [ "x${1:0:2}" == "xpj" ] && [ ${#1} -lt 4 ]
-then
-  if [ ${#1} -eq 2 ]
-  then
-    WORK_DIR=$WORKSPACE/${PROJECT_LIST}
-  else
-    PROJECT_NUMBER=${1:2}
-    cmn_isPositiveNumber $PROJECT_NUMBER
-    if [ $? -eq 0 ] && [ "x${PROJECT_LIST[$PROJECT_NUMBER]}" != "x" ]
-    then
-      WORK_DIR=$WORKSPACE/${PROJECT_LIST[$PROJECT_NUMBER]}
-    fi
-  fi
-
-  if [ -f $WORK_DIR/docker-compose.yml ]
-  then
-    FOUND_PROJECT=0
-  elif [ -f $WORK_DIR/provision/docker-compose.yml ]
-  then
-    FOUND_PROJECT=0
-    WORK_DIR=$WORK_DIR/provision
-  else
-    WORK_DIR=
-  fi
-
-  if [ $FOUND_PROJECT -eq 0 ]
-  then
-    cd ${WORK_DIR}
-    CONFIGURED_WORK_DIR=" $1"
-    shift
-  fi
 fi
 
 if [ $FOUND_PROJECT -ne 0 ]
@@ -158,9 +155,21 @@ fi
 declare -A CUSTOM_ALIASES
 declare -A CUSTOM_ALIASES_GROUPS
 declare -A CUSTOM_ALIASES_DEFINATION
-if [ -f .provision.env ]
+if [ -f $WORK_DIR/.provision.env ]
 then
-  . .provision.env
+  . $WORK_DIR/.provision.env
+fi
+
+################################################################################
+# Start|stop docker compose
+#.: Stop service
+if [ "x$1" = 'x.' ]
+then
+  set -- down
+# Stop docker compose
+elif [ "x$1" = 'x' ] && [ -f $WORK_DIR/docker-compose.yml ] && [[ ! `docker compose ps --services` ]]
+then
+  set -- up -d
 fi
 
 ################################################################################
@@ -182,7 +191,7 @@ function getConnectContainer() {
     return 1
   fi
 
-  if [ ! -z ${1} ]; then
+  if [[ ! -z ${1} ]]; then
     while IFS= read -r line; do
       line=`echo $line`
       if [ "x${1}" = "x${line}" ]; then
@@ -205,11 +214,19 @@ function exitInvalidContainer () {
 
 ################################################################################
 # Run project custom scripts
-if [ "x${CUSTOM_PROJECT_SCRIPTS}" != "x" ] && [ "x$1" != "x" ] && [ -f "${CUSTOM_PROJECT_SCRIPTS}/${1}.sh" ]; then
-  EXEC_SCRIPT=${1}
-  shift
-  . "${CUSTOM_PROJECT_SCRIPTS}/${EXEC_SCRIPT}.sh"
-  exit
+if [ "x${CUSTOM_PROJECT_SCRIPTS}" != "x" ]
+then
+  if [ -f ${CUSTOM_PROJECT_SCRIPTS}/env ]
+  then
+    . ${CUSTOM_PROJECT_SCRIPTS}/env
+  fi
+
+  if [ "x$1" != "x" ] && [ -f "${CUSTOM_PROJECT_SCRIPTS}/${1}.sh" ]; then
+    EXEC_SCRIPT=${1}
+    shift
+    . "${CUSTOM_PROJECT_SCRIPTS}/${EXEC_SCRIPT}.sh"
+    exit
+  fi
 fi
 
 ################################################################################
@@ -487,6 +504,11 @@ then
   fi
 
   exit
+fi
+
+if [ "x$1" = 'xup' ] || [ "x$1" = 'xstart' ]
+then
+  [[ -x $WORK_DIR/.dcu ]] && $WORK_DIR/.dcu
 fi
 
 #################################################################

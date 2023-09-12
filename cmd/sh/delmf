@@ -13,12 +13,7 @@
 #&    Delete files or folders named `echo_yellow "<name>" -en` recursively.
 ################################################################################
 BASE_DIR=`cd $(dirname "$0"); pwd`
-
-# Include common functions of bash
-for lc_script in `find $BASE_DIR/../../include -maxdepth 2 -type f -name '*.sh'`
-do
-. $lc_script
-done
+. $BASE_DIR/../../include/src
 
 # Check parameter
 if [ "x${1}" = "x" ]

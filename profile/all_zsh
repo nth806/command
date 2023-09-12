@@ -1,0 +1,87 @@
+#!/bin/bash
+#######
+# Utility functions for all machine bashes
+
+# Start SSH Agent
+#----------------------------
+SSH_ENV="$HOME/.ssh/environment"
+
+function run_ssh_env() {
+  . "${SSH_ENV}" > /dev/null
+}
+
+function start_ssh_agent {
+  echo "Initializing new SSH agent..."
+  ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  echo "succeeded"
+  chmod 600 "${SSH_ENV}"
+
+  run_ssh_env;
+
+  ssh-add ~/.ssh/id_rsa;
+}
+
+if [ -f "${SSH_ENV}" ]
+then
+  run_ssh_env
+
+  ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+    start_ssh_agent;
+  }
+else
+  start_ssh_agent;
+fi
+
+##
+# List of indexes of project
+##
+function project_indexes() {
+  local i idx val
+  for i val in "${(@kv)PROJECT_INDEXES}"
+  do
+    idx=`printf %8s ${i}`
+    echo "  ${idx}: "${val}
+  done
+}
+
+##
+# Configure changing directory to default folders
+##
+function cd() {
+  if [ "x$1" != "x" ] && [ -d "$1" ]; then
+    builtin cd "$@"
+    return
+  fi
+
+
+  if [ "x$2" != "x" ] && [ -d "$2" ]; then
+    builtin cd "$@"
+    return
+  fi
+
+  # CD configured folders
+  if [ "x$1" != "x" ] && [ "x${CD_DEFAULT[$1]}" != "x" ]; then
+    builtin cd ${CD_DEFAULT[$1]}
+    return
+  fi
+
+  command cd "$@"
+}
+
+##
+# List of indexes of project
+##
+function cd_aliases() {
+  local i idx val
+  for i val in "${(@kv)CD_DEFAULT}"
+  do
+    idx=`printf %8s ${i}`
+    echo "  ${idx}: "${val}
+  done
+}
+
+# Add custom
+if [ -f $COMMAND_DIR/profile/custom ]
+then
+  . $COMMAND_DIR/profile/custom
+fi

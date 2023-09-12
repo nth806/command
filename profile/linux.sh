@@ -1,3 +1,3 @@
 #######
 # Utility functions for linux
-. "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"/all.sh
+. $COMMAND_DIR/profile/all_$SHELL_NAME

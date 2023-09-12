@@ -13,9 +13,9 @@ then
   do
     line=`echo "${line}" | sed 's:/*$::'`
     if [ "x${line}" != "x" ]
-	then
-	  IGNORE_LIST="${IGNORE_LIST} ! -path '${line}' "
-	fi
+  then
+    IGNORE_LIST="${IGNORE_LIST} ! -path '${line}' "
+  fi
   done < .findignore
   IFS=$PRI_IFS
 fi
