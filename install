@@ -152,6 +152,10 @@ else
     echo "COMMAND_DIR=${WORK_DIR}" >> $_BASH_COMMAND
     echo '. $COMMAND_DIR/'${_ENV}$'\n' >> $_BASH_COMMAND
 
+    echo 'function ssh_add_keys() {' >> $_BASH_COMMAND
+    echo '  ssh-add ~/.ssh/id_rsa' >> $_BASH_COMMAND
+    echo '}'$'\n' >> $_BASH_COMMAND
+
     echo '# System variables' >> $_BASH_COMMAND
     echo 'M_OS=`uname | tr '"'[:upper:]' '[:lower:]'"'`' >> $_BASH_COMMAND
     echo 'if [ "x${M_OS:0:5}" = '"'xmingw'"' ]' >> $_BASH_COMMAND

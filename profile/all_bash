@@ -10,15 +10,14 @@ function run_ssh_env() {
   . "${SSH_ENV}" > /dev/null
 }
 
-function start_ssh_agent {
+function start_ssh_agent() {
   echo "Initializing new SSH agent..."
   ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
   echo "succeeded"
   chmod 600 "${SSH_ENV}"
 
-  run_ssh_env;
-
-  ssh-add ~/.ssh/id_rsa;
+  run_ssh_env
+  ssh_add_keys
 }
 
 if [ -f "${SSH_ENV}" ]

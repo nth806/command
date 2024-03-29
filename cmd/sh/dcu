@@ -165,10 +165,18 @@ fi
 #.: Stop service
 if [ "x$1" = 'x.' ]
 then
+  # Stop docker compose
   set -- down
-# Stop docker compose
+elif [ "x$1" = 'x..' ] || [ "x$1" = 'xreup' ]
+then
+  # Stop docker compose
+  ${EXEC_NAME}${CONFIGURED_WORK_DIR} down
+
+  # Start docker compose
+  set -- up -d
 elif [ "x$1" = 'x' ] && [ -f $WORK_DIR/docker-compose.yml ] && [[ ! `docker compose ps --services` ]]
 then
+  # Start docker compose
   set -- up -d
 fi
 
@@ -416,26 +424,52 @@ fi
 
 ################################################################################
 # Try to explain aliases
-if [ "x${1}" != 'x' ] && [ "x${1:0:1}" != 'x-' ] && [ "x${CUSTOM_ALIASES[$1]}" != 'x' ]
+if [ "x${1}" != 'x' ] && [ "x${1:0:1}" != 'x-' ]
 then
   TMP_ARG="${1}"
-  shift
-
-  TMP_VARS="$@"
-  for arg do
-    shift
-  done
-
-  TMP_QUOTE_AT_LAST=${CUSTOM_ALIASES[$TMP_ARG]: -1}
-  if [ "x${TMP_QUOTE_AT_LAST}" == "x'" ] && [ "x${TMP_VARS}" != 'x' ]
+  if [ "x${TMP_ARG}" != 'x' ] && [ "x${CUSTOM_ALIASES[$TMP_ARG]}" = 'x' ]
   then
-    TMP_CUSTOM_ALIASES_QUOTE="${CUSTOM_ALIASES[$TMP_ARG]%?}"
-    set -- $TMP_CUSTOM_ALIASES_QUOTE ${TMP_VARS}${TMP_QUOTE_AT_LAST}
-  else
-    set -- ${CUSTOM_ALIASES[$TMP_ARG]} ${TMP_VARS}
+    COMMAND_AFTER_COLON=${TMP_ARG#*:}
+    if [ "x$COMMAND_AFTER_COLON" != 'x' ]
+    then
+      if [ "x$COMMAND_AFTER_COLON" = "x$TMP_ARG" ]
+      then
+        COMMAND_AFTER_COLON=
+      else
+        TMP_ARG=${TMP_ARG%%:*}
+        if [ "x$TMP_ARG" = 'x' ]
+        then
+          TMP_ARG="${1}"
+          COMMAND_AFTER_COLON=
+        else
+          COMMAND_AFTER_COLON=':'${COMMAND_AFTER_COLON}
+        fi
+      fi
+    fi
   fi
 
-  unset TMP_ARG TMP_VARS TMP_QUOTE_AT_LAST TMP_CUSTOM_ALIASES_QUOTE
+  if [ "x${TMP_ARG}" != 'x' ] && [ "x${CUSTOM_ALIASES[$TMP_ARG]}" != 'x' ]
+  then
+    shift
+
+    TMP_VARS="$@"
+    for arg do
+      shift
+    done
+
+    TMP_QUOTE_AT_LAST=${CUSTOM_ALIASES[$TMP_ARG]: -1}
+    if [ "x${TMP_QUOTE_AT_LAST}" == "x'" ] && [ "x${TMP_VARS}" != 'x' ]
+    then
+      TMP_CUSTOM_ALIASES_QUOTE="${CUSTOM_ALIASES[$TMP_ARG]%?}"
+      set -- $TMP_CUSTOM_ALIASES_QUOTE$COMMAND_AFTER_COLON ${TMP_VARS}${TMP_QUOTE_AT_LAST}
+    else
+      set -- ${CUSTOM_ALIASES[$TMP_ARG]}$COMMAND_AFTER_COLON ${TMP_VARS}
+    fi
+
+    unset TMP_ARG TMP_VARS TMP_QUOTE_AT_LAST TMP_CUSTOM_ALIASES_QUOTE
+  fi
+
+  unset TMP_ARG COMMAND_AFTER_COLON
 fi
 
 #################################################################
