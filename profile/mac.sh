@@ -13,7 +13,7 @@ function ramFree() {
 # Change to hidden file
 ##
 function change2Hidden() {
-  if [ "x$1" == "x" ]; then
+  if [ "x$1" = "x" ]; then
     echo "No file pattern inputted"
   fi
   

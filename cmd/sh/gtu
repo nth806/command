@@ -66,7 +66,7 @@ then
   CMD_NAME=${1}
   shift
 
-  if [ "x${1}" == "x-h" ] || [ "x${1}" == "xhelp" ] || [ "x${1}" == "x--help" ]
+  if [ "x${1}" = "x-h" ] || [ "x${1}" = "xhelp" ] || [ "x${1}" = "x--help" ]
   then
     cd $BASE_DIR
     inc_helpComponent

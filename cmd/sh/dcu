@@ -131,7 +131,7 @@ fi
 
 if [ $FOUND_PROJECT -ne 0 ]
 then
-  if [ "x$1" = "x" ] || [ "x$1" == "xhelp" ] || [ "x$1" == "x-" ]
+  if [ "x$1" = "x" ] || [ "x$1" = "xhelp" ] || [ "x$1" = "x-" ]
   then
     CURRENT_DIRECTORY=`pwd`
   fi
@@ -333,7 +333,7 @@ function showAliases() {
         break
       fi
     done
-    [ "x$lc_k" == 'x' ] && lc_k=$lc_others
+    [ "x$lc_k" = 'x' ] && lc_k=$lc_others
 
     lc_arr_output[$lc_k]+="`elementAlias $lc_i`"
   done
@@ -360,7 +360,7 @@ function showAliases() {
   fi
 }
 
-if [ "x${1}" = "x" ] || [ "x${1}" = "xhelp" ] || [ "x$1" == "x-" ]
+if [ "x${1}" = "x" ] || [ "x${1}" = "xhelp" ] || [ "x$1" = "x-" ]
 then
   if [ "x${1}" = "xhelp" ]
   then
@@ -384,7 +384,7 @@ then
 
       TMP_VARS="$@"
       TMP_QUOTE_AT_LAST=${CUSTOM_ALIASES[$TMP_ARG]: -1}
-      if [ "x${TMP_QUOTE_AT_LAST}" == "x'" ] && [ "x${TMP_VARS}" != 'x' ]
+      if [ "x${TMP_QUOTE_AT_LAST}" = "x'" ] && [ "x${TMP_VARS}" != 'x' ]
       then
         TMP_CUSTOM_ALIASES_QUOTE="${CUSTOM_ALIASES[$TMP_ARG]%?}"
         TMP_VARS="$TMP_CUSTOM_ALIASES_QUOTE ${TMP_VARS}${TMP_QUOTE_AT_LAST}"
@@ -458,7 +458,7 @@ then
     done
 
     TMP_QUOTE_AT_LAST=${CUSTOM_ALIASES[$TMP_ARG]: -1}
-    if [ "x${TMP_QUOTE_AT_LAST}" == "x'" ] && [ "x${TMP_VARS}" != 'x' ]
+    if [ "x${TMP_QUOTE_AT_LAST}" = "x'" ] && [ "x${TMP_VARS}" != 'x' ]
     then
       TMP_CUSTOM_ALIASES_QUOTE="${CUSTOM_ALIASES[$TMP_ARG]%?}"
       set -- $TMP_CUSTOM_ALIASES_QUOTE$COMMAND_AFTER_COLON ${TMP_VARS}${TMP_QUOTE_AT_LAST}
@@ -505,7 +505,7 @@ if [ "x${1}" = 'x-c' ] || [ "x${1}" = 'x-ci' ] || [ "x${1}" = 'x-ic' ]
 then
   shift
   _USE_INTERACTION=0
-  if [ "x${M_EXEC}" == "x-c" ]
+  if [ "x${M_EXEC}" = "x-c" ]
   then
     _USE_INTERACTION=1
   fi

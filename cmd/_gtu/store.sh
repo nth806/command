@@ -139,7 +139,7 @@ function _run() {
     for lfile in `git status --short`
     do
       lfile=`cmn_trimSpaces ${lfile:2:255}`
-      if [ "x${lfile}" == "x" ]
+      if [ "x${lfile}" = "x" ]
       then
         continue
       fi
@@ -157,7 +157,7 @@ function _run() {
     # Copy changed files at specified commit.
     for lfile in `git diff-tree --no-commit-id --name-only -r ${1}~ ${1}`
     do
-      if [ "x${lfile}" == "x" ]
+      if [ "x${lfile}" = "x" ]
       then
         continue
       fi

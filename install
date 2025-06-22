@@ -75,22 +75,42 @@ then
   inc_itselfHelp
 fi
 
+echo $SHELL_NAME
+
 #-------------------------------------------------
 #### Main process ####
 cd "${BASE_DIR}"
 
-if [ -f ~/.bashrc ]
+if [ "x$SHELL_NAME" = 'xsh' ]
 then
-  _INIT_BASH=~/.bashrc
-elif [ -f ~/.profile ]
-then
-  _INIT_BASH=~/.profile
-elif [ -f ~/.bash_profile ]
-then
-  _INIT_BASH=~/.bash_profile
+  if [ -f ~/.zshenv ]
+  then
+    _INIT_BASH=~/.zshenv
+  elif [ -f ~/.profile ]
+  then
+    _INIT_BASH=~/.profile
+  elif [ -f ~/.zprofile ]
+  then
+    _INIT_BASH=~/.zprofile
+  else
+    echo_yellow "Can't locate the initial zsh script"
+    exit
+  fi
 else
-  echo_yellow "Can't locate the initial bash script"
-  exit
+  # Default bash
+  if [ -f ~/.bashrc ]
+  then
+    _INIT_BASH=~/.bashrc
+  elif [ -f ~/.profile ]
+  then
+    _INIT_BASH=~/.profile
+  elif [ -f ~/.bash_profile ]
+  then
+    _INIT_BASH=~/.bash_profile
+  else
+    echo_yellow "Can't locate the initial bash script"
+    exit
+  fi
 fi
 
 # Install this: put settings in ~/.bash_command
@@ -153,7 +173,7 @@ else
     echo '. $COMMAND_DIR/'${_ENV}$'\n' >> $_BASH_COMMAND
 
     echo 'function ssh_add_keys() {' >> $_BASH_COMMAND
-    echo '  ssh-add ~/.ssh/id_rsa' >> $_BASH_COMMAND
+    echo '  echo ssh-add ~/.ssh/id_rsa' >> $_BASH_COMMAND
     echo '}'$'\n' >> $_BASH_COMMAND
 
     echo '# System variables' >> $_BASH_COMMAND

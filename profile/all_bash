@@ -83,3 +83,27 @@ if [ -f $COMMAND_DIR/profile/custom ]
 then
   . $COMMAND_DIR/profile/custom
 fi
+
+##
+# WSL windows editor app open
+##
+function weo() {
+  if [ "x$WIN_EDITOR" = 'x' ]; then
+    return
+  fi
+
+  if [ "x$1" = 'x' ]; then
+    eval "${WIN_EDITOR} $WIN_EBG"
+    return
+  fi
+
+  if [ -e "$1" ]; then
+    eval "${WIN_EDITOR} '$1' $WIN_EBG"
+    return
+  fi
+
+  if [ "x${CD_DEFAULT[$1]}" != "x" ]; then
+    eval "${WIN_EDITOR} '${CD_DEFAULT[$1]}' $WIN_EBG"
+    return
+  fi
+}

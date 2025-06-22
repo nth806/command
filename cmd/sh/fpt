@@ -7,7 +7,7 @@ then
   shift
 fi
 
-if [ "x$1" == "x" ]
+if [ "x$1" = "x" ]
 then
   echo please input your search text.
   exit
