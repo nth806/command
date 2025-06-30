@@ -1,0 +1,62 @@
+#######
+# Utility functions for all machine *shes
+###############################################################################
+# Common services declaration
+for lc_script in `find $COMMAND_DIR/profile/sh -type f -name '*.sh'`
+do
+  . $lc_script
+done
+unset $lc_script
+
+#
+# Start SSH Agent
+#----------------------------
+function run_ssh_env() {
+  . "${SSH_ENV}" > /dev/null
+}
+
+function start_ssh_agent() {
+  echo "Initializing new SSH agent..."
+  ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  echo "succeeded"
+  chmod 600 "${SSH_ENV}"
+
+  run_ssh_env
+  ssh_add_keys
+}
+
+SSH_ENV="$HOME/.ssh/environment"
+if [ -f "${SSH_ENV}" ]
+then
+  run_ssh_env
+
+  ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+    start_ssh_agent;
+  }
+else
+  start_ssh_agent;
+fi
+
+##
+# WSL windows editor app open
+##
+function weo() {
+  if [ "x$WIN_EDITOR" = 'x' ]; then
+    return
+  fi
+
+  if [ "x$1" = 'x' ]; then
+    eval "${WIN_EDITOR} $WIN_EBG"
+    return
+  fi
+
+  if [ -e "$1" ]; then
+    eval "${WIN_EDITOR} '$1' $WIN_EBG"
+    return
+  fi
+
+  if [ "x${CD_DEFAULT[$1]}" != "x" ]; then
+    eval "${WIN_EDITOR} '${CD_DEFAULT[$1]}' $WIN_EBG"
+    return
+  fi
+}

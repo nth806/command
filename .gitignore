@@ -1,4 +1,4 @@
-/cmd_*
+/cmdsh/
 /.env
-/profile/custom
+/.env.cmd
 

@@ -15,12 +15,11 @@
 BASE_DIR=`cd $(dirname "$0"); pwd`
 
 #-------------------------------------------------
-CMD_PREFIX=cmd_
 CMD_GIT_REPOSITORY='git@gitlab.com:soartools'
-CMD_LIST=( pcr pjr shopify shu )
+CMD_LIST=( cmdsh )
 
 function installCommand () {
-  local UTIL_CMD=${CMD_PREFIX}${1}
+  local UTIL_CMD=${1}
   if [ -d ${UTIL_CMD} ]
   then
     echo_yellow "${1} has already installed."
@@ -76,7 +75,6 @@ then
 fi
 
 echo $SHELL_NAME
-
 #-------------------------------------------------
 #### Main process ####
 cd "${BASE_DIR}"
@@ -138,6 +136,17 @@ else
   cd "${BASE_DIR}"
 
   #--------------------------
+  # Create init sh files
+  lc_strlist='aliases.sh paths.sh functions.sh'
+  for lc in $lc_strlist
+  do
+    if [ ! -f profile/sh/{$lc} ]
+    then
+      echo > profile/sh/$lc
+    fi
+  done
+
+  #--------------------------
   # Add .env file
   echo "WORKSPACE=${WORKSPACE}"$'\n' >> $_ENV
 
@@ -190,20 +199,7 @@ else
     echo '  # Profile for OS' >> $_BASH_COMMAND
     echo '  . $COMMAND_DIR/profile/${M_OS}.sh'$'\n' >> $_BASH_COMMAND
 
-    echo '  for lc_dir in `find $COMMAND_DIR -type d -name '"'cmd_*'"'`' >> $_BASH_COMMAND
-    echo '  do' >> $_BASH_COMMAND
-    echo '    lc_basename=`basename $lc_dir`' >> $_BASH_COMMAND
-    echo '    lc_basename=${lc_basename#cmd_}' >> $_BASH_COMMAND
-    echo '    if [ -x ${lc_dir}/${lc_basename} ]' >> $_BASH_COMMAND
-    echo '    then' >> $_BASH_COMMAND
-    echo '      alias ${lc_basename}="${lc_dir}/${lc_basename}"' >> $_BASH_COMMAND
-    echo '    fi' >> $_BASH_COMMAND
-    echo '  done' >> $_BASH_COMMAND
-    echo 'else' >> $_BASH_COMMAND
-    echo '  echo '"'"'There is no path for common functions!'"'" >> $_BASH_COMMAND
-    echo 'fi'$'\n' >> $_BASH_COMMAND
-
-    echo 'PATH=$PATH:$COMMAND_DIR/cmd/sh:$COMMAND_DIR/cmd/${M_OS}/:'$'\n' >> $_BASH_COMMAND
+    echo 'PATH=$PATH:$COMMAND_DIR/cmdsh:$COMMAND_DIR/profile/sh:$COMMAND_DIR/cmd/${M_OS}/$COMMAND_DIR/cmd/sh:'$'\n' >> $_BASH_COMMAND
 
     echo 'unset lc_script lc_dir lc_basename' >> $_BASH_COMMAND
     echo 'export PATH' >> $_BASH_COMMAND

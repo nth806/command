@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+################################################################################
+# Open DiffMerge application (diffmerge files).
+#&Need to set up the path to diffmerge application `echo_yellow "DIFFMERGE_APP=" -en`
+#
+# Usage:
+#&  `echo_yellow "${EXEC_NAME}" -en`
+#     Open application only (not available file).
+#
+#&  `echo_yellow "${EXEC_NAME} help|-h|--help" -en`
+#     Show this help.
+################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../include/src
+
+if [ "x${1}" = "x" ]
+then
+  open $DIFFMERGE_APP
+elif [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ] || [ "x${1}" = "xhelp" ]
+then
+  inc_itselfHelp
+else
+  open $DIFFMERGE_APP --args "$@"
+fi

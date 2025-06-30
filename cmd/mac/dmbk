@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 ################################################################################
-# Open DiffMerge application.
+# Open DiffMerge application (Backup command).
+#&Need to set up the path to diffmerge application `echo_yellow "DIFFMERGE_APP=" -en`
 #
 # Usage:
 #&  `echo_yellow "${EXEC_NAME}" -en`
@@ -12,7 +13,7 @@
 #&  `echo_yellow "${EXEC_NAME} --" -en`
 #     Open and available 2 files: CP_2.html and CP_3.html.
 #
-#&  `echo_yellow "${EXEC_NAME} --" -en`
+#&  `echo_yellow "${EXEC_NAME} ---" -en`
 #     Open and available 3 files: CP_0.html and CP_1.html and CP_2.html.
 #
 #&  `echo_yellow "${EXEC_NAME} <n> <file>" -en`
@@ -22,8 +23,19 @@
 #&  `echo_yellow "${EXEC_NAME} help|-h|--help" -en`
 #     Show this help.
 ################################################################################
-APP_DIR="/Applications/DiffMerge.app"
-DIFF_DIR=~/OneDrive/track/compare
+DIFF_DIR=~/comparision_files
+if [ ! -d $DIFF_DIR ]
+then
+  mkdir ~/comparision_files
+  lc_strlist='0 1 2 3'
+  for lc in $lc_strlist
+  do
+    if [ ! -f "${DIFF_DIR}/CP_${lc}.html" ]
+    then
+      touch "${DIFF_DIR}/CP_${lc}.html"
+    fi
+  done
+fi
 
 BASE_DIR=`cd $(dirname "$0"); pwd`
 . $BASE_DIR/../../include/src
@@ -33,16 +45,22 @@ then
   inc_itselfHelp
 elif [ "x${1}" = "x" ]
 then
-  open $APP_DIR --args $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html
+  open $DIFFMERGE_APP --args $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html
 elif [ "x${1}" = "x-" ]
 then
-  open $APP_DIR
+  shift
+  if [ "x${1}" = "x" ]
+  then
+    open $DIFFMERGE_APP
+  else
+    open $DIFFMERGE_APP --args "$@"
+  fi
 elif [ "x${1}" = "x--" ]
 then
-  open $APP_DIR --args $DIFF_DIR/CP_2.html $DIFF_DIR/CP_3.html
+  open $DIFFMERGE_APP --args $DIFF_DIR/CP_2.html $DIFF_DIR/CP_3.html
 elif [ "x${1}" = "x---" ]
 then
-  open $APP_DIR --args $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html $DIFF_DIR/CP_2.html
+  open $DIFFMERGE_APP --args $DIFF_DIR/CP_0.html $DIFF_DIR/CP_1.html $DIFF_DIR/CP_2.html
 else
   if [ "x${2}" != "x" ] && [ -f "$2" ]
   then
