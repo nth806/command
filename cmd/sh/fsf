@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+###################################################################################################
+# Find Sequence Text Files: Find files which contains a phrase or a sequence of phrases in files within the current
+# directory and its subdirectories.
+#
+# Usage:
+#&  `echo_yellow "${EXEC_NAME} [--help]" -en`
+#     Show this help.
+#
+#&  `echo_yellow "${EXEC_NAME} [grep-options:-iw] query" -en`
+#&    Search for `echo_yellow "query" -en`.
+#
+#&  `echo_yellow "${EXEC_NAME} - [-iw] query" -en`
+#&    Search for `echo_yellow "query" -en` without excluding folders listed in `echo_yellow .findignore -en`.
+#
+#&  `echo_yellow "${EXEC_NAME} [-iw] query [-iw] query_2 [-iw] [...]" -en`
+#&    Search for `echo_yellow "query query_2 [...]" -en`.
+###################################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../include/src
+
+# Show help
+if [ "x${1}" = "x" ] || [ "x${1}" = "x--help" ]
+then
+  inc_itselfHelp
+fi
+
+# grep -Rwl ${OPTIONS} '${TEXT_SEARCH}'
+OPTIONS=
+if [ "x${1:0:1}" = 'x-' ]
+then
+  OPTIONS="${1}"
+  shift
+fi
+
+if [ "x$1" = "x" ]
+then
+  echo please input your search text.
+  exit
+fi
+
+IFS=$'\n'
+last_line=
+for line in `fst $OPTIONS "$@"`
+do
+  line=`echo "${line}" | cut -d'/' -f2- | cut -d':' -f1`
+  if [ "x${last_line}" != "x${line}" ]
+  then
+    last_line="${line}"
+    echo ./${line}
+  fi
+done
+IFS=$PRI_IFS
+

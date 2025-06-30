@@ -15,15 +15,14 @@
 BASE_DIR=`cd $(dirname "$0"); pwd`
 
 #-------------------------------------------------
-CMD_PREFIX=cmd_
 CMD_GIT_REPOSITORY='git@gitlab.com:soartools'
-CMD_LIST=( pcr pjr shopify shu )
+CMD_LIST=( cmdsh )
 
 function installCommand () {
-  local UTIL_CMD=${CMD_PREFIX}${1}
+  local UTIL_CMD=${1}
   if [ -d ${UTIL_CMD} ]
   then
-    echo_yellow "${1} has already installed."
+    echo_yellow "The ${1} has already installed."
   else
     git clone ${CMD_GIT_REPOSITORY}/${UTIL_CMD}.git ${UTIL_CMD}
   fi
@@ -32,8 +31,8 @@ function installCommand () {
 #-------------------------------------------------
 _ENV=.env
 _BASH_COMMAND=~/.bash_command
+_BASH_COMPLETION=~/.bash_completion
 
-WORKSPACE=
 function inputWorkspace () {
   read -e -p "- Workspace: " WORKSPACE
   if [ ! -z "${WORKSPACE}" ]
@@ -76,7 +75,6 @@ then
 fi
 
 echo $SHELL_NAME
-
 #-------------------------------------------------
 #### Main process ####
 cd "${BASE_DIR}"
@@ -113,11 +111,9 @@ else
   fi
 fi
 
-# Install this: put settings in ~/.bash_command
-if [ -f $_ENV ]
+# Install this: put .env settings
+if [ ! -f $_ENV ]
 then
-  [[ -z "$1" ]] && echo_yellow 'The utility command has already been installed!' && exit
-else
   # Do install
   echo_blue 'Input absoluted path to your workspace (where you locate projects'"'"' source).'
   while [[ -z "${WORKSPACE}" ]] || [ ! -d "${WORKSPACE}" ] || ! cmn_isStartWith / "${WORKSPACE}"
@@ -136,6 +132,17 @@ else
     inputProject
   done
   cd "${BASE_DIR}"
+
+  #--------------------------
+  # Create init sh files
+  lc_strlist='aliases.sh paths.sh functions.sh'
+  for lc in $lc_strlist
+  do
+    if [ ! -f profile/sh/{$lc} ]
+    then
+      echo > profile/sh/$lc
+    fi
+  done
 
   #--------------------------
   # Add .env file
@@ -163,56 +170,76 @@ else
   echo >> $_ENV
   echo '# Absolute paths' >> $_ENV
   echo 'PROJECT_INDEXES[cmd]=${COMMAND_DIR}'$'\n' >> $_ENV
+fi
 
-  #--------------------------
-  # Add ~/.bash_command file
-  if [ ! -f $_BASH_COMMAND ]
+#--------------------------
+# Add ~/.bash_command file
+if [ ! -f $_BASH_COMMAND ]
+then
+  echo $'\n''#### Utility Command ####' >> $_BASH_COMMAND
+  echo "COMMAND_DIR=${WORK_DIR}" >> $_BASH_COMMAND
+  echo '. $COMMAND_DIR/'${_ENV}$'\n' >> $_BASH_COMMAND
+
+  echo 'function ssh_add_keys() {' >> $_BASH_COMMAND
+  echo '  echo ssh-add ~/.ssh/id_rsa' >> $_BASH_COMMAND
+  echo '}'$'\n' >> $_BASH_COMMAND
+
+  echo '# System variables' >> $_BASH_COMMAND
+  echo 'M_OS=`uname | tr '"'[:upper:]' '[:lower:]'"'`' >> $_BASH_COMMAND
+  echo 'if [ "x${M_OS:0:5}" = '"'xmingw'"' ]' >> $_BASH_COMMAND
+  echo 'then' >> $_BASH_COMMAND
+  echo '  M_OS=gitbash' >> $_BASH_COMMAND
+  echo 'fi'$'\n' >> $_BASH_COMMAND
+
+  echo '# Utility commands' >> $_BASH_COMMAND
+  echo 'if [ -d $COMMAND_DIR/include ]; then' >> $_BASH_COMMAND
+  echo '  . $COMMAND_DIR/include/src'$'\n' >> $_BASH_COMMAND
+
+  echo '  # Profile for OS' >> $_BASH_COMMAND
+  echo '  . $COMMAND_DIR/profile/${M_OS}.sh' >> $_BASH_COMMAND
+  echo 'else' >> $_BASH_COMMAND
+  echo '  echo '"'"'There is no path for common functions!'"'" >> $_BASH_COMMAND
+  echo 'fi'$'\n' >> $_BASH_COMMAND
+
+  echo 'PATH=$PATH:$COMMAND_DIR/cmdsh:$COMMAND_DIR/profile/sh:$COMMAND_DIR/cmd/${M_OS}:$COMMAND_DIR/cmd/sh'$'\n' >> $_BASH_COMMAND
+
+  echo 'unset lc_script lc_dir lc_basename' >> $_BASH_COMMAND
+  echo 'export PATH'$'\n' >> $_BASH_COMMAND
+
+  # Source .bash_command
+  _BASH_COMMAND='~'`cmn_rmLeadingWith $HOME $_BASH_COMMAND`
+  cat $_INIT_BASH | grep '. '"${_BASH_COMMAND}" > /dev/null
+  if [ $? -ne 0 ]
   then
-    echo $'\n''#### Utility Command ####' >> $_BASH_COMMAND
-    echo "COMMAND_DIR=${WORK_DIR}" >> $_BASH_COMMAND
-    echo '. $COMMAND_DIR/'${_ENV}$'\n' >> $_BASH_COMMAND
-
-    echo 'function ssh_add_keys() {' >> $_BASH_COMMAND
-    echo '  echo ssh-add ~/.ssh/id_rsa' >> $_BASH_COMMAND
-    echo '}'$'\n' >> $_BASH_COMMAND
-
-    echo '# System variables' >> $_BASH_COMMAND
-    echo 'M_OS=`uname | tr '"'[:upper:]' '[:lower:]'"'`' >> $_BASH_COMMAND
-    echo 'if [ "x${M_OS:0:5}" = '"'xmingw'"' ]' >> $_BASH_COMMAND
-    echo 'then' >> $_BASH_COMMAND
-    echo '  M_OS=gitbash' >> $_BASH_COMMAND
-    echo 'fi'$'\n' >> $_BASH_COMMAND
-
-    echo '# Utility commands' >> $_BASH_COMMAND
-    echo 'if [ -d $COMMAND_DIR/include ]; then' >> $_BASH_COMMAND
-    echo '  . $COMMAND_DIR/include/src'$'\n' >> $_BASH_COMMAND
-
-    echo '  # Profile for OS' >> $_BASH_COMMAND
-    echo '  . $COMMAND_DIR/profile/${M_OS}.sh'$'\n' >> $_BASH_COMMAND
-
-    echo '  for lc_dir in `find $COMMAND_DIR -type d -name '"'cmd_*'"'`' >> $_BASH_COMMAND
-    echo '  do' >> $_BASH_COMMAND
-    echo '    lc_basename=`basename $lc_dir`' >> $_BASH_COMMAND
-    echo '    lc_basename=${lc_basename#cmd_}' >> $_BASH_COMMAND
-    echo '    if [ -x ${lc_dir}/${lc_basename} ]' >> $_BASH_COMMAND
-    echo '    then' >> $_BASH_COMMAND
-    echo '      alias ${lc_basename}="${lc_dir}/${lc_basename}"' >> $_BASH_COMMAND
-    echo '    fi' >> $_BASH_COMMAND
-    echo '  done' >> $_BASH_COMMAND
-    echo 'else' >> $_BASH_COMMAND
-    echo '  echo '"'"'There is no path for common functions!'"'" >> $_BASH_COMMAND
-    echo 'fi'$'\n' >> $_BASH_COMMAND
-
-    echo 'PATH=$PATH:$COMMAND_DIR/cmd/sh:$COMMAND_DIR/cmd/${M_OS}/:'$'\n' >> $_BASH_COMMAND
-
-    echo 'unset lc_script lc_dir lc_basename' >> $_BASH_COMMAND
-    echo 'export PATH' >> $_BASH_COMMAND
-
-    # Source .bash_command
     echo $'\n# Custom command utilities' >> $_INIT_BASH
     echo '. '"${_BASH_COMMAND}" >> $_INIT_BASH
-    echo
+    echo >> $_INIT_BASH
   fi
+fi
+
+REQUIRE_BASH_COMPLETION=1
+BASH_COMPLETION_MARKER='# Custom command utilities'
+if [ ! -f $_BASH_COMPLETION ]
+then
+  REQUIRE_BASH_COMPLETION=0
+else
+  cat $_BASH_COMPLETION | grep "$BASH_COMPLETION_MARKER" > /dev/null
+  if [ $? -ne 0 ]
+  then
+    REQUIRE_BASH_COMPLETION=0
+  fi
+fi
+
+if [ $REQUIRE_BASH_COMPLETION -eq 0 ]
+then
+  echo "${BASH_COMPLETION_MARKER}" >> $_BASH_COMPLETION
+  echo 'if [ -d '${COMMAND_DIR}'/cmdsh/sh_completions ]; then' >> $_BASH_COMPLETION
+  echo '  for lc_script in `find '${COMMAND_DIR}'/cmdsh/sh_completions -type f -name '"'"'*.sh'"'"'`' >> $_BASH_COMPLETION
+  echo '  do' >> $_BASH_COMPLETION
+  echo '    . $lc_script' >> $_BASH_COMPLETION
+  echo '  done' >> $_BASH_COMPLETION
+  echo 'fi' >> $_BASH_COMPLETION
+  echo 'unset $lc_script'$'\n' >> $_BASH_COMPLETION
 fi
 
 # Install utility commands
