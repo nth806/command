@@ -3,6 +3,23 @@
 . $COMMAND_DIR/profile/allsh
 
 ##
+# Add project list into cd list
+#----------------------------
+if [ ${#PROJECT_INDEXES[@]} -gt 0 ] && [ ${#CD_DEFAULT[@]} -gt 0 ]
+then
+  for i in "${!PROJECT_INDEXES[@]}"
+  do
+    if [ -z ${CD_DEFAULT[$i]} ]
+    then
+      p="${PROJECT_INDEXES[$i]}"
+      cmn_isStartWith / "$p" || p="${WORKSPACE}/${p}"
+      CD_DEFAULT[$i]="${p}"
+    fi
+  done
+  unset i p
+fi
+
+##
 # List of indexes of project
 ##
 function project_indexes() {

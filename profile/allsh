@@ -6,7 +6,7 @@ for lc_script in `find $COMMAND_DIR/profile/sh -type f -name '*.sh'`
 do
   . $lc_script
 done
-unset $lc_script
+unset lc_script
 
 #
 # Start SSH Agent
@@ -46,7 +46,7 @@ function weo() {
   fi
 
   if [ "x$1" = 'x' ]; then
-    eval "${WIN_EDITOR} $WIN_EBG"
+    eval "${WIN_EDITOR} '`pwd`' $WIN_EBG"
     return
   fi
 

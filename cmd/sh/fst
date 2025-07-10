@@ -10,7 +10,10 @@
 #&  `echo_yellow "${EXEC_NAME} [grep-options:-iw] query" -en`
 #&    Search for `echo_yellow "query" -en`.
 #
-#&  `echo_yellow "${EXEC_NAME} - [-iw] query" -en`
+#&  `echo_yellow "${EXEC_NAME} - [grep-options:-iw] query" -en`
+#&    Search for `echo_green "transformed" -en` `echo_yellow "query" -en`.
+#
+#&  `echo_yellow "${EXEC_NAME} -- [-iw] query" -en`
 #&    Search for `echo_yellow "query" -en` without excluding folders listed in `echo_yellow .findignore -en`.
 #
 #&  `echo_yellow "${EXEC_NAME} [-iw] query [-iw] query_2 [-iw] [...]" -en`
@@ -19,9 +22,15 @@
 BASE_DIR=`cd $(dirname "$0"); pwd`
 . $BASE_DIR/../../include/src
 
-# Check excludes
-CHECK_EXCLUDE=0
+SET_TRANFOMR=1
 if [ "x${1}" = "x-" ]
+then
+  shift
+  SET_TRANFOMR=0
+fi
+
+CHECK_EXCLUDE=0
+if [ "x${1}" = "x--" ]
 then
   shift
   CHECK_EXCLUDE=1
@@ -33,6 +42,17 @@ then
   inc_itselfHelp
 fi
 
+function __setTransform()
+{
+  if [ $SET_TRANFOMR -ne 0 ]
+  then
+    echo "${1}"
+    return
+  fi
+
+  echo "$1" | sed 's/\//./g'
+}
+
 OPTIONS=
 if [ "x${1:0:1}" = 'x-' ]
 then
@@ -41,6 +61,7 @@ then
 fi
 
 TEXT_SEARCH=`echo "${1}" | sed 's#'"'"'#'"'"'"'"'"'"'"'"'#g'`
+TEXT_SEARCH=`__setTransform "${TEXT_SEARCH}"`
 shift
 
 IGNORE_LIST=' '

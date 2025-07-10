@@ -15,7 +15,7 @@
 BASE_DIR=`cd $(dirname "$0"); pwd`
 
 #-------------------------------------------------
-CMD_GIT_REPOSITORY='git@gitlab.com:soartools'
+CMD_GIT_REPOSITORY='git@github.com:nth806'
 CMD_LIST=( cmdsh )
 
 function installCommand () {
@@ -30,8 +30,7 @@ function installCommand () {
 
 #-------------------------------------------------
 _ENV=.env
-_BASH_COMMAND=~/.bash_command
-_BASH_COMPLETION=~/.bash_completion
+_SH_COMPLETION_DIR=completion.d
 
 function inputWorkspace () {
   read -e -p "- Workspace: " WORKSPACE
@@ -79,36 +78,42 @@ echo $SHELL_NAME
 #### Main process ####
 cd "${BASE_DIR}"
 
-if [ "x$SHELL_NAME" = 'xsh' ]
+if [ "x$SHELL_NAME" = 'xzsh' ]
 then
-  if [ -f ~/.zshenv ]
+  if [ -f ~/.zshrc ]
   then
-    _INIT_BASH=~/.zshenv
-  elif [ -f ~/.profile ]
-  then
-    _INIT_BASH=~/.profile
+    _INIT_SH=~/.zshrc
   elif [ -f ~/.zprofile ]
   then
-    _INIT_BASH=~/.zprofile
+    _INIT_SH=~/.zprofile
+  elif [ -f ~/.zshenv ]
+  then
+    _INIT_SH=~/.zshenv
   else
     echo_yellow "Can't locate the initial zsh script"
     exit
   fi
+
+  _SH_COMMAND=~/.zsh_command
+  _SH_COMPLETION=~/.zsh_completion.d
 else
   # Default bash
   if [ -f ~/.bashrc ]
   then
-    _INIT_BASH=~/.bashrc
+    _INIT_SH=~/.bashrc
   elif [ -f ~/.profile ]
   then
-    _INIT_BASH=~/.profile
+    _INIT_SH=~/.profile
   elif [ -f ~/.bash_profile ]
   then
-    _INIT_BASH=~/.bash_profile
+    _INIT_SH=~/.bash_profile
   else
     echo_yellow "Can't locate the initial bash script"
     exit
   fi
+
+  _SH_COMMAND=~/.bash_command
+  _SH_COMPLETION=~/.bash_completion
 fi
 
 # Install this: put .env settings
@@ -150,16 +155,8 @@ then
 
   echo '#### Directory changing settings' >> $_ENV
   echo 'declare -A CD_DEFAULT' >> $_ENV
-  echo 'CD_DEFAULT[c]="${COMMAND_DIR}"' >> $_ENV
   echo 'CD_DEFAULT[ws]="${WORKSPACE}"'$'\n' >> $_ENV
 
-  echo '# Change directory by project index' >> $_ENV
-  for i in "${!PROJECT_INDEXES[@]}"
-  do
-    echo "CD_DEFAULT[${PROJECT_INDEXES[${i}]}]="'"${WORKSPACE}/'"${i}"'"' >> $_ENV
-  done
-
-  echo >> $_ENV
   echo '#### Projects settings' >> $_ENV
   echo 'declare -A PROJECT_INDEXES' >> $_ENV
   for i in "${!PROJECT_INDEXES[@]}"
@@ -169,77 +166,115 @@ then
 
   echo >> $_ENV
   echo '# Absolute paths' >> $_ENV
-  echo 'PROJECT_INDEXES[cmd]=${COMMAND_DIR}'$'\n' >> $_ENV
+  echo 'PROJECT_INDEXES[c]=${COMMAND_DIR}' >> $_ENV
+  echo 'PROJECT_INDEXES[sh]=${COMMAND_DIR}/cmdsh'$'\n' >> $_ENV
 fi
 
 #--------------------------
 # Add ~/.bash_command file
-if [ ! -f $_BASH_COMMAND ]
+if [ ! -f $_SH_COMMAND ]
 then
-  echo $'\n''#### Utility Command ####' >> $_BASH_COMMAND
-  echo "COMMAND_DIR=${WORK_DIR}" >> $_BASH_COMMAND
-  echo '. $COMMAND_DIR/'${_ENV}$'\n' >> $_BASH_COMMAND
+  echo '#### Utility Command ####' >> $_SH_COMMAND
+  echo "COMMAND_DIR=${WORK_DIR}" >> $_SH_COMMAND
+  echo '. $COMMAND_DIR/'${_ENV}$'\n' >> $_SH_COMMAND
 
-  echo 'function ssh_add_keys() {' >> $_BASH_COMMAND
-  echo '  echo ssh-add ~/.ssh/id_rsa' >> $_BASH_COMMAND
-  echo '}'$'\n' >> $_BASH_COMMAND
+  echo 'function ssh_add_keys() {' >> $_SH_COMMAND
+  echo '  echo ssh-add ~/.ssh/id_rsa' >> $_SH_COMMAND
+  echo '}'$'\n' >> $_SH_COMMAND
 
-  echo '# System variables' >> $_BASH_COMMAND
-  echo 'M_OS=`uname | tr '"'[:upper:]' '[:lower:]'"'`' >> $_BASH_COMMAND
-  echo 'if [ "x${M_OS:0:5}" = '"'xmingw'"' ]' >> $_BASH_COMMAND
-  echo 'then' >> $_BASH_COMMAND
-  echo '  M_OS=gitbash' >> $_BASH_COMMAND
-  echo 'fi'$'\n' >> $_BASH_COMMAND
+  echo '# System variables' >> $_SH_COMMAND
+  echo 'M_OS=`uname | tr '"'[:upper:]' '[:lower:]'"'`' >> $_SH_COMMAND
+  echo 'if [ "x${M_OS:0:5}" = '"'xmingw'"' ]' >> $_SH_COMMAND
+  echo 'then' >> $_SH_COMMAND
+  echo '  M_OS=gitbash' >> $_SH_COMMAND
+  echo 'fi'$'\n' >> $_SH_COMMAND
 
-  echo '# Utility commands' >> $_BASH_COMMAND
-  echo 'if [ -d $COMMAND_DIR/include ]; then' >> $_BASH_COMMAND
-  echo '  . $COMMAND_DIR/include/src'$'\n' >> $_BASH_COMMAND
+  echo '# Utility commands' >> $_SH_COMMAND
+  echo 'if [ -d $COMMAND_DIR/include ]; then' >> $_SH_COMMAND
+  echo '  . $COMMAND_DIR/include/src'$'\n' >> $_SH_COMMAND
 
-  echo '  # Profile for OS' >> $_BASH_COMMAND
-  echo '  . $COMMAND_DIR/profile/${M_OS}.sh' >> $_BASH_COMMAND
-  echo 'else' >> $_BASH_COMMAND
-  echo '  echo '"'"'There is no path for common functions!'"'" >> $_BASH_COMMAND
-  echo 'fi'$'\n' >> $_BASH_COMMAND
+  echo '  # Profile for OS' >> $_SH_COMMAND
+  echo '  . $COMMAND_DIR/profile/${M_OS}.sh' >> $_SH_COMMAND
+  echo 'else' >> $_SH_COMMAND
+  echo '  echo '"'"'There is no path for common functions!'"'" >> $_SH_COMMAND
+  echo 'fi'$'\n' >> $_SH_COMMAND
 
-  echo 'PATH=$PATH:$COMMAND_DIR/cmdsh:$COMMAND_DIR/profile/sh:$COMMAND_DIR/cmd/${M_OS}:$COMMAND_DIR/cmd/sh'$'\n' >> $_BASH_COMMAND
+  echo 'PATH=$PATH:$COMMAND_DIR/cmdsh:$COMMAND_DIR/profile/sh:$COMMAND_DIR/cmd/${M_OS}:$COMMAND_DIR/cmd/sh'$'\n' >> $_SH_COMMAND
 
-  echo 'unset lc_script lc_dir lc_basename' >> $_BASH_COMMAND
-  echo 'export PATH'$'\n' >> $_BASH_COMMAND
+  echo 'unset lc_script lc_dir lc_basename' >> $_SH_COMMAND
+  echo 'export PATH'$'\n' >> $_SH_COMMAND
 
   # Source .bash_command
-  _BASH_COMMAND='~'`cmn_rmLeadingWith $HOME $_BASH_COMMAND`
-  cat $_INIT_BASH | grep '. '"${_BASH_COMMAND}" > /dev/null
+  _SH_COMMAND='~'`cmn_rmLeadingWith $HOME $_SH_COMMAND`
+  cat $_INIT_SH | grep '. '"${_SH_COMMAND}" > /dev/null
   if [ $? -ne 0 ]
   then
-    echo $'\n# Custom command utilities' >> $_INIT_BASH
-    echo '. '"${_BASH_COMMAND}" >> $_INIT_BASH
-    echo >> $_INIT_BASH
+    echo $'\n# Custom command utilities' >> $_INIT_SH
+    echo '. '"${_SH_COMMAND}" >> $_INIT_SH
+    echo >> $_INIT_SH
   fi
 fi
 
-REQUIRE_BASH_COMPLETION=1
-BASH_COMPLETION_MARKER='# Custom command utilities'
-if [ ! -f $_BASH_COMPLETION ]
+COMPLETION_MARKER='# Custom completion utilities'
+REQUIRE_SH_COMPLETION=1
+if [ "x$SHELL_NAME" = 'xzsh' ]
 then
-  REQUIRE_BASH_COMPLETION=0
+  SH_COMPLETION_DIR=$BASE_DIR/cmdsh/${_SH_COMPLETION_DIR}
+  cat $_INIT_SH | grep "$COMPLETION_MARKER" > /dev/null
+  if [ $? -ne 0 ]
+  then
+    REQUIRE_SH_COMPLETION=0
+  fi
+
+  if [ $REQUIRE_SH_COMPLETION -eq 0 ] && [ -d "$SH_COMPLETION_DIR" ]
+  then
+    echo "${COMPLETION_MARKER}" >> $_INIT_SH
+    echo 'fpath=('${SH_COMPLETION_DIR}' $fpath)' >> $_INIT_SH
+    echo 'autoload -U compinit' >> $_INIT_SH
+    #echo 'compinit' >> $_INIT_SH
+    echo 'compinit -i'$'\n' >> $_INIT_SH
+
+    echo 'if [ ${#GU_ALLIASES} -gt 0 ]; then' >> $_INIT_SH
+    echo '  for val i in "${(@kv)GU_ALLIASES}"; do' >> $_INIT_SH
+    echo '    alias $val="gu $i"' >> $_INIT_SH
+    echo '    #compdef _gu $val' >> $_INIT_SH
+    echo '  done' >> $_INIT_SH
+    echo '  unset i val' >> $_INIT_SH
+    echo 'fi'$'\n' >> $_INIT_SH
+  fi
 else
-  cat $_BASH_COMPLETION | grep "$BASH_COMPLETION_MARKER" > /dev/null
-  if [ $? -ne 0 ]
+  if [ ! -f $_SH_COMPLETION ]
   then
-    REQUIRE_BASH_COMPLETION=0
+    REQUIRE_SH_COMPLETION=0
+  else
+    cat $_SH_COMPLETION | grep "$COMPLETION_MARKER" > /dev/null
+    if [ $? -ne 0 ]
+    then
+      REQUIRE_SH_COMPLETION=0
+    fi
   fi
-fi
 
-if [ $REQUIRE_BASH_COMPLETION -eq 0 ]
-then
-  echo "${BASH_COMPLETION_MARKER}" >> $_BASH_COMPLETION
-  echo 'if [ -d '${COMMAND_DIR}'/cmdsh/sh_completions ]; then' >> $_BASH_COMPLETION
-  echo '  for lc_script in `find '${COMMAND_DIR}'/cmdsh/sh_completions -type f -name '"'"'*.sh'"'"'`' >> $_BASH_COMPLETION
-  echo '  do' >> $_BASH_COMPLETION
-  echo '    . $lc_script' >> $_BASH_COMPLETION
-  echo '  done' >> $_BASH_COMPLETION
-  echo 'fi' >> $_BASH_COMPLETION
-  echo 'unset $lc_script'$'\n' >> $_BASH_COMPLETION
+  if [ $REQUIRE_SH_COMPLETION -eq 0 ]
+  then
+    # Add source completion scripts
+    echo "${COMPLETION_MARKER}" >> $_SH_COMPLETION
+    echo 'if [ -d '${COMMAND_DIR}'/cmdsh/'${_SH_COMPLETION_DIR}' ]; then' >> $_SH_COMPLETION
+    echo '  for lc_script in `find '${COMMAND_DIR}'/cmdsh/'${_SH_COMPLETION_DIR}' -type f -name '"'"'*.bash'"'"'`' >> $_SH_COMPLETION
+    echo '  do' >> $_SH_COMPLETION
+    echo '    . $lc_script' >> $_SH_COMPLETION
+    echo '  done' >> $_SH_COMPLETION
+    echo '  unset lc_script'$'\n' >> $_SH_COMPLETION
+
+    echo '  if [ ${#GU_ALLIASES[@]} -gt 0 ]; then' >> $_SH_COMPLETION
+    echo '    for i in "${!GU_ALLIASES[@]}"; do' >> $_SH_COMPLETION
+    echo '      alias $i='"'"'gu '"'"'${GU_ALLIASES[$i]}' >> $_SH_COMPLETION
+    echo '      ___gu_complete $i __gu_main' >> $_SH_COMPLETION
+    echo '    done' >> $_SH_COMPLETION
+    echo '    unset i' >> $_SH_COMPLETION
+    echo '  fi' >> $_SH_COMPLETION
+    echo 'fi' >> $_SH_COMPLETION
+    echo >> $_SH_COMPLETION
+  fi
 fi
 
 # Install utility commands

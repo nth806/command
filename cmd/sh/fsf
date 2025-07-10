@@ -10,7 +10,10 @@
 #&  `echo_yellow "${EXEC_NAME} [grep-options:-iw] query" -en`
 #&    Search for `echo_yellow "query" -en`.
 #
-#&  `echo_yellow "${EXEC_NAME} - [-iw] query" -en`
+#&  `echo_yellow "${EXEC_NAME} - [grep-options:-iw] query" -en`
+#&    Search for `echo_green "transformed" -en` `echo_yellow "query" -en`.
+#
+#&  `echo_yellow "${EXEC_NAME} -- [-iw] query" -en`
 #&    Search for `echo_yellow "query" -en` without excluding folders listed in `echo_yellow .findignore -en`.
 #
 #&  `echo_yellow "${EXEC_NAME} [-iw] query [-iw] query_2 [-iw] [...]" -en`
@@ -19,11 +22,29 @@
 BASE_DIR=`cd $(dirname "$0"); pwd`
 . $BASE_DIR/../../include/src
 
+SET_TRANFOMR=1
+if [ "x${1}" = "x-" ]
+then
+  shift
+  SET_TRANFOMR=0
+fi
+
 # Show help
 if [ "x${1}" = "x" ] || [ "x${1}" = "x--help" ]
 then
   inc_itselfHelp
 fi
+
+function __setTransform()
+{
+  if [ $SET_TRANFOMR -ne 0 ]
+  then
+    echo "${1}"
+    return
+  fi
+
+  echo "$1" | sed 's/\//./g'
+}
 
 # grep -Rwl ${OPTIONS} '${TEXT_SEARCH}'
 OPTIONS=
@@ -41,7 +62,8 @@ fi
 
 IFS=$'\n'
 last_line=
-for line in `fst $OPTIONS "$@"`
+TEXT_SEARCH=`__setTransform "$@"`
+for line in `fst $OPTIONS "${TEXT_SEARCH}"`
 do
   line=`echo "${line}" | cut -d'/' -f2- | cut -d':' -f1`
   if [ "x${last_line}" != "x${line}" ]

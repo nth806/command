@@ -15,16 +15,16 @@
 BASE_DIR=`cd $(dirname "$0"); pwd`
 . $BASE_DIR/../../include/src
 
-# Check parameter
-if [ "x${1}" = "x" ]
-then
-  inc_itselfHelp 'Please input file name which you would like to remove recursively.'
-fi
-
 # Show help
 if [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ]
 then
   inc_itselfHelp
+fi
+
+# Check parameter
+if [ "x${1}" = "x" ]
+then
+  cmn_exitAbnormal 'Please input file name which you would like to remove recursively.'
 fi
 
 if [ "x${2}" = "x-f" ]
