@@ -258,7 +258,7 @@ function showCustomScriptHelp () {
     IFS=$'\n'
     while read lc_line; do
       __cpnt_help_process_line "${lc_line}"
-  
+
       # Check exit
       [ ${HELP_MSG_STT} -eq 0 ] && break
     done < "${lc_file}"
@@ -288,11 +288,28 @@ function showAliases() {
     echo ''
   fi
 
-  echo_magenta "List of aliases:"
-  local lc_i
+  local lc_i lc_shortcut="${1}" help_list=1
+  if [ "x${lc_shortcut}" = 'x-' ]
+  then
+    shift
+    lc_shortcut=
+    help_list=0
+  fi
+
+  if [ -n "${lc_shortcut}" ]
+  then
+    shift
+  else
+    echo_magenta "List of aliases:"
+  fi
 
   if [ ${#CUSTOM_ALIASES_GROUPS[@]} -eq 0 ]
   then
+    if [ -n "${lc_shortcut}" ]
+    then
+      return
+    fi
+
     for lc_i in "${!CUSTOM_ALIASES[@]}"
     do
       elementAlias ${lc_i}
@@ -338,6 +355,19 @@ function showAliases() {
     lc_arr_output[$lc_k]+="`elementAlias $lc_i`"
   done
 
+  if [ -n "${lc_shortcut}" ]
+  then
+    if [ ${#lc_arr_output[$lc_shortcut]} -eq 0 ]
+    then
+      return
+    fi
+
+    echo
+    echo_blue "  ${CUSTOM_ALIASES_GROUPS[$lc_shortcut]}:"
+    echo "${lc_arr_output[$lc_shortcut]}"
+    return
+  fi
+
   if [ ${#CUSTOM_ALIASES_ORDER[@]} -eq 0 ]
   then
     for lc_i in "${!lc_arr_output[@]}"
@@ -350,9 +380,16 @@ function showAliases() {
     for lc_i in "${CUSTOM_ALIASES_ORDER[@]}"
     do
       echo_blue "  ${CUSTOM_ALIASES_GROUPS[$lc_i]}:"
-      echo "${lc_arr_output[$lc_i]}"
+      if [ $help_list -eq 0 ]
+      then
+        elementAlias $lc_i
+        echo
+      else
+        echo "${lc_arr_output[$lc_i]}"
+      fi
     done
   fi
+
   if [ "x${lc_arr_output[$lc_others]}" != "x" ]
   then
     echo_blue "  Others:"
@@ -360,24 +397,25 @@ function showAliases() {
   fi
 }
 
+HELP_LIST=1
 if [ "x${1}" = "x" ] || [ "x${1}" = "xhelp" ] || [ "x$1" = "x-" ]
 then
-  if [ "x${1}" = "xhelp" ]
+  if [ "x${1}" != "x" ]
   then
     shift
+    if [ ${#CUSTOM_ALIASES[@]} -gt 0 ]
+    then
+      HELP_LIST=0
+    fi
   fi
 
   if [ "x${CUSTOM_PROJECT_SCRIPTS}" != "x" ] && [ "x$1" != "x" ] && [ -f "${CUSTOM_PROJECT_SCRIPTS}/${1}.sh" ]; then
     inc_fileHelp "${CUSTOM_PROJECT_SCRIPTS}/${1}.sh"
   fi
 
-  if [ "x$1" != "x" ] && [ ${#CUSTOM_ALIASES[@]} -gt 0 ]
+  if [ "x$1" != "x" ]
   then
-    if [ "x$1" = "x-" ]
-    then
-      showAliases
-      exit
-    elif [ "x${CUSTOM_ALIASES[$1]}" != "x" ]
+    if [ ${#CUSTOM_ALIASES[@]} -gt 0 ] && [ -n "${CUSTOM_ALIASES[$1]}" ]
     then
       TMP_ARG="${1}"
       shift
@@ -397,8 +435,14 @@ then
       [ -v CUSTOM_ALIASES_DEFINATION[$TMP_ARG] ] && echo -n " (${CUSTOM_ALIASES_DEFINATION[$TMP_ARG]})"
       echo ' is shorten of '
       echo_yellow "    ${EXEC_NAME}${CONFIGURED_WORK_DIR} ${TMP_VARS}"
+
+      showAliases "${TMP_ARG}"
       exit
     fi
+  elif [ $HELP_LIST -eq 0 ]
+  then
+    showAliases '-'
+    exit
   fi
 
   if [ "x$CONNECT_DEFAULT_CONTAINER" = "x" ]
@@ -409,15 +453,16 @@ then
     SHOW_DEFAULT_CONTAINER="$CONNECT_DEFAULT_CONTAINER"
   fi
 
+  SHOW_ALIASES_NEWLINE=true
   if [ "x$WORK_DIR" = 'x' ]
   then
     SHOW_WORK_DIR=
-  else
-    SHOW_WORK_DIR="
-Working directory: `echo_cyan $WORK_DIR -en`"
+    inc_itselfHelp
+    exit
   fi
 
-  SHOW_ALIASES_NEWLINE=true
+  SHOW_WORK_DIR="
+Working directory: `echo_cyan $WORK_DIR -en`"
   inc_itselfHelp | less -r
   exit
 fi
