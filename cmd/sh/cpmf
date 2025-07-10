@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+################################################################################
+# Copy files have specified name pattern recursively.
+#
+# Usage:
+#&  `echo_yellow "${EXEC_NAME} [-h|--help]" -en`
+#     Show this help.
+#
+#&  `echo_yellow "${EXEC_NAME} <source folder> <name>" -en`
+#&    Show list of files which need to be copied `echo_yellow "<name>" -en`.
+#
+#&  `echo_yellow "${EXEC_NAME} <source folder> <name> <destination folder>" -en`
+#&    Copy files with name pattern `echo_yellow "<name>" -en` recursively to destination folder.
+################################################################################
+BASE_DIR=`cd $(dirname "$0"); pwd`
+. $BASE_DIR/../../include/src
+
+# Show help
+if [ "x${1}" = "x-h" ] || [ "x${1}" = "x--help" ] || [ "x${1}" = "x" ]
+then
+  inc_itselfHelp
+fi
+
+# Check parameters
+SOURCE_FOLDER=`cmn_rmTrailingWith / "${1}"`
+if [ ! -d "${SOURCE_FOLDER}" ]
+then
+  cmn_exitAbnormal 'Source folder is not a valid folder.'
+fi
+
+shift
+if [ "x${1}" = "x" ]
+then
+  cmn_exitAbnormal 'Please input file name pattern which you would like to copy recursively.'
+fi
+
+FILENAME_PATTERN="${1}"
+shift
+
+DESTINATION_FOLDER=
+if [ "x${1}" != "x" ]
+then
+  DESTINATION_FOLDER=`cmn_rmTrailingWith / "${1}"`
+  shift
+
+  if [ ! -d "${DESTINATION_FOLDER}" ]
+  then
+    cmn_exitAbnormal 'Destination folder is not a valid folder.'
+  fi
+else
+  echo_green "File list:"
+fi
+
+for pathname in `find ${SOURCE_FOLDER} -type f -name "${FILENAME_PATTERN}"`
+do
+  filename=`cmn_rmLeadingWith "${SOURCE_FOLDER}/" "${pathname}"`
+  if [ -n "${DESTINATION_FOLDER}" ]
+  then
+    echo -n 'Copy '
+  fi
+
+  echo "${filename}"
+  if [ -n "${DESTINATION_FOLDER}" ]
+  then
+    desFolder=`dirname "${filename}"`
+    if [ "x${desFolder}" = 'x.' ]
+    then
+      desFolder="${DESTINATION_FOLDER}"
+    else
+      desFolder="${DESTINATION_FOLDER}/${desFolder}"
+    fi
+
+    if [ ! -d "${desFolder}" ]
+    then
+      mkdir -p "${desFolder}"
+    fi
+
+    cp -f "${pathname}" "${desFolder}/"
+  fi
+done
