@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ###################################################################################################
-# Find Sequence Text Files: Find files which contains a phrase or a sequence of phrases in files within the current
-# directory and its subdirectories.
+# Find Sequence Text: Find files which contains a phrase or a sequence of phrases in files within the current
+# directory and its subdirectories. If there are 2 or more phrases, search content of these files instead.
 #
 # Usage:
 #&  `echo_yellow "${EXEC_NAME} [--help]" -en`
@@ -29,6 +29,13 @@ then
   SET_TRANFOMR=0
 fi
 
+CHECK_EXCLUDE=0
+if [ "x${1}" = "x--" ]
+then
+  shift
+  CHECK_EXCLUDE=1
+fi
+
 # Show help
 if [ "x${1}" = "x" ] || [ "x${1}" = "x--help" ]
 then
@@ -46,31 +53,55 @@ function __setTransform()
   echo "$1" | sed 's/\//./g'
 }
 
-# grep -Rwl ${OPTIONS} '${TEXT_SEARCH}'
-OPTIONS=
+OPTIONS='-l'
 if [ "x${1:0:1}" = 'x-' ]
 then
-  OPTIONS="${1}"
+  OPTIONS="${1}l"
   shift
 fi
 
-if [ "x$1" = "x" ]
+TEXT_SEARCH=`echo "${1}" | sed 's#'"'"'#'"'"'"'"'"'"'"'"'#g'`
+TEXT_SEARCH=`__setTransform "${TEXT_SEARCH}"`
+shift
+
+IGNORE_LIST=' '
+if [ $CHECK_EXCLUDE -eq 0 ] && [ -f .findignore ]
 then
-  echo please input your search text.
-  exit
+  while IFS=$'\n' read -r line
+  do
+    line=`echo "${line}" | sed 's:/*$::'`
+    if [ "x${line}" != "x" ]
+    then
+      if [ -e "${line}" ]
+      then
+        IGNORE_LIST="${IGNORE_LIST} ! -name '${line}'"
+      else
+        IGNORE_LIST="${IGNORE_LIST} ! -path '${line}' "
+      fi
+    fi
+  done < .findignore
+  IFS=$PRI_IFS
 fi
 
-IFS=$'\n'
-last_line=
-TEXT_SEARCH=`__setTransform "$@"`
-for line in `fst $OPTIONS "${TEXT_SEARCH}"`
+COMMAND="find . -type f ! -path '*/.git/*' ! -path '*/node_modules/*' ${IGNORE_LIST} -exec grep ${OPTIONS} '${TEXT_SEARCH}' {} \+"
+
+OPTIONS=
+IS_INFILE=0
+for SECONDARY_TS in $@
 do
-  line=`echo "${line}" | cut -d'/' -f2- | cut -d':' -f1`
-  if [ "x${last_line}" != "x${line}" ]
+  if [ "x${SECONDARY_TS:0:1}" = 'x-' ]
   then
-    last_line="${line}"
-    echo ./${line}
+    OPTIONS="${OPTIONS} ${SECONDARY_TS}"
+  else
+    if [ $IS_INFILE -eq 0 ]
+    then
+      COMMAND="${COMMAND} | xargs grep ${OPTIONS} '${SECONDARY_TS}'"
+    else
+      COMMAND="${COMMAND} | grep ${OPTIONS} '${SECONDARY_TS}'"
+    fi
+    OPTIONS=
+    IS_INFILE=1
   fi
 done
-IFS=$PRI_IFS
 
+eval $COMMAND 2>/dev/null
